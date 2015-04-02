@@ -184,7 +184,7 @@ DefinitionBlock ("SSDT-6.aml", "SSDT", 1, "SaSsdt", "SaSsdt ", 0x00003000)
     {
         Name (LTRS, Zero)
         Name (OBFS, Zero)
-        Device (P0P2)
+        Device (PEG0)
         {
             Name (_ADR, 0x00010000)  // _ADR: Address
             OperationRegion (PEGR, PCI_Config, 0xC0, 0x30)
@@ -207,19 +207,19 @@ DefinitionBlock ("SSDT-6.aml", "SSDT", 1, "SaSsdt", "SaSsdt ", 0x00003000)
             {
                 If (Arg0)
                 {
-                    Store (One, GENG) /* \_SB_.PCI0.P0P2.GENG */
-                    Store (One, PMEG) /* \_SB_.PCI0.P0P2.PMEG */
+                    Store (One, GENG) /* \_SB_.PCI0.PEGP.GENG */
+                    Store (One, PMEG) /* \_SB_.PCI0.PEGP.PMEG */
                 }
                 Else
                 {
-                    Store (Zero, GENG) /* \_SB_.PCI0.P0P2.GENG */
-                    Store (Zero, PMEG) /* \_SB_.PCI0.P0P2.PMEG */
+                    Store (Zero, GENG) /* \_SB_.PCI0.PEGP.GENG */
+                    Store (Zero, PMEG) /* \_SB_.PCI0.PEGP.PMEG */
                 }
             }
 
             Method (HPME, 0, Serialized)
             {
-                Store (One, PSTS) /* \_SB_.PCI0.P0P2.PSTS */
+                Store (One, PSTS) /* \_SB_.PCI0.PEGP.PSTS */
             }
 
             Method (_PRT, 0, NotSerialized)  // _PRT: PCI Routing Table
@@ -246,16 +246,41 @@ DefinitionBlock ("SSDT-6.aml", "SSDT", 1, "SaSsdt", "SaSsdt ", 0x00003000)
                 Zero
             })
             Name (OPTS, Zero)
-            
 
-            Device (PEGP)
+
+            Device (GFX0)
             {
-                Name (_ADR, Zero)  // _ADR: Address
-                Method (_PRW, 0, NotSerialized)  // _PRW: Power Resources for Wake
+                Name (_ADR, Zero)
+                Name (_SUN, One)
+                Method (_DSM, 4, NotSerialized)
                 {
-                    Return (GPRW (0x09, 0x04))
+                    If (LEqual (Arg2, Zero)) { Return (Buffer() { 0x03 } ) }
+                    Return (Package()
+                    {
+                        "@0,connector-type", Buffer() { 0x00, 0x08, 0x00, 0x00 },
+                        "@1,connector-type", Buffer() { 0x00, 0x08, 0x00, 0x00 },
+                        "@2,connector-type", Buffer() { 0x00, 0x08, 0x00, 0x00 },
+                        "@3,connector-type", Buffer() { 0x00, 0x08, 0x00, 0x00 },
+                        "hda-gfx", Buffer() { "onboard-2" },
+                    })
                 }
             }
+            Device (HDAU)
+            {
+                Name (_ADR, One)
+                Method (_DSM, 4, NotSerialized)
+                {
+                    If (LEqual (Arg2, Zero)) { Return (Buffer() { 0x03 } ) }
+                    Return (Package()
+                    {
+                        "layout-id", Buffer() { 0x01, 0x00, 0x00, 0x00 },
+                        "hda-gfx", Buffer() { "onboard-2" },
+                    })
+                }
+            }
+            
+
+            
         }
 
         Device (PEG1)
@@ -802,15 +827,15 @@ DefinitionBlock ("SSDT-6.aml", "SSDT", 1, "SaSsdt", "SaSsdt ", 0x00003000)
             }
         }
 
-        Device (GFX0)
+        Device (IGPU)
         {
             Name (_ADR, 0x00020000)  // _ADR: Address
             Method (DEP, 0, NotSerialized)  // _DEP: Dependencies
             {
-                ADBG ("GFX0 DEP Call")
+                ADBG ("IGPU DEP Call")
                 If (LEqual (S0ID, One))
                 {
-                    ADBG ("GFX0 DEP")
+                    ADBG ("IGPU DEP")
                     Return (Package (0x01)
                     {
                         \_SB.PEPD
@@ -818,7 +843,7 @@ DefinitionBlock ("SSDT-6.aml", "SSDT", 1, "SaSsdt", "SaSsdt ", 0x00003000)
                 }
                 Else
                 {
-                    ADBG ("GFX0 DEP NULL")
+                    ADBG ("IGPU DEP NULL")
                     Return (Package (Zero) {})
                 }
             }
@@ -927,7 +952,7 @@ DefinitionBlock ("SSDT-6.aml", "SSDT", 1, "SaSsdt", "SaSsdt ", 0x00003000)
                         Ones
                     })
                     Store (Or (0x00010000, DID1), Index (TMP1, Zero))
-                    Return (TMP1) /* \_SB_.PCI0.GFX0._DOD.TMP1 */
+                    Return (TMP1) /* \_SB_.PCI0.IGPU._DOD.TMP1 */
                 }
 
                 If (LEqual (NDID, 0x02))
@@ -939,7 +964,7 @@ DefinitionBlock ("SSDT-6.aml", "SSDT", 1, "SaSsdt", "SaSsdt ", 0x00003000)
                     })
                     Store (Or (0x00010000, DID1), Index (TMP2, Zero))
                     Store (Or (0x00010000, DID2), Index (TMP2, One))
-                    Return (TMP2) /* \_SB_.PCI0.GFX0._DOD.TMP2 */
+                    Return (TMP2) /* \_SB_.PCI0.IGPU._DOD.TMP2 */
                 }
 
                 If (LEqual (NDID, 0x03))
@@ -953,7 +978,7 @@ DefinitionBlock ("SSDT-6.aml", "SSDT", 1, "SaSsdt", "SaSsdt ", 0x00003000)
                     Store (Or (0x00010000, DID1), Index (TMP3, Zero))
                     Store (Or (0x00010000, DID2), Index (TMP3, One))
                     Store (Or (0x00010000, DID3), Index (TMP3, 0x02))
-                    Return (TMP3) /* \_SB_.PCI0.GFX0._DOD.TMP3 */
+                    Return (TMP3) /* \_SB_.PCI0.IGPU._DOD.TMP3 */
                 }
 
                 If (LEqual (NDID, 0x04))
@@ -969,7 +994,7 @@ DefinitionBlock ("SSDT-6.aml", "SSDT", 1, "SaSsdt", "SaSsdt ", 0x00003000)
                     Store (Or (0x00010000, DID2), Index (TMP4, One))
                     Store (Or (0x00010000, DID3), Index (TMP4, 0x02))
                     Store (Or (0x00010000, DID4), Index (TMP4, 0x03))
-                    Return (TMP4) /* \_SB_.PCI0.GFX0._DOD.TMP4 */
+                    Return (TMP4) /* \_SB_.PCI0.IGPU._DOD.TMP4 */
                 }
 
                 If (LEqual (NDID, 0x05))
@@ -987,7 +1012,7 @@ DefinitionBlock ("SSDT-6.aml", "SSDT", 1, "SaSsdt", "SaSsdt ", 0x00003000)
                     Store (Or (0x00010000, DID3), Index (TMP5, 0x02))
                     Store (Or (0x00010000, DID4), Index (TMP5, 0x03))
                     Store (Or (0x00010000, DID5), Index (TMP5, 0x04))
-                    Return (TMP5) /* \_SB_.PCI0.GFX0._DOD.TMP5 */
+                    Return (TMP5) /* \_SB_.PCI0.IGPU._DOD.TMP5 */
                 }
 
                 If (LEqual (NDID, 0x06))
@@ -1007,7 +1032,7 @@ DefinitionBlock ("SSDT-6.aml", "SSDT", 1, "SaSsdt", "SaSsdt ", 0x00003000)
                     Store (Or (0x00010000, DID4), Index (TMP6, 0x03))
                     Store (Or (0x00010000, DID5), Index (TMP6, 0x04))
                     Store (Or (0x00010000, DID6), Index (TMP6, 0x05))
-                    Return (TMP6) /* \_SB_.PCI0.GFX0._DOD.TMP6 */
+                    Return (TMP6) /* \_SB_.PCI0.IGPU._DOD.TMP6 */
                 }
 
                 If (LEqual (NDID, 0x07))
@@ -1029,7 +1054,7 @@ DefinitionBlock ("SSDT-6.aml", "SSDT", 1, "SaSsdt", "SaSsdt ", 0x00003000)
                     Store (Or (0x00010000, DID5), Index (TMP7, 0x04))
                     Store (Or (0x00010000, DID6), Index (TMP7, 0x05))
                     Store (Or (0x00010000, DID7), Index (TMP7, 0x06))
-                    Return (TMP7) /* \_SB_.PCI0.GFX0._DOD.TMP7 */
+                    Return (TMP7) /* \_SB_.PCI0.IGPU._DOD.TMP7 */
                 }
 
                 If (LEqual (NDID, 0x08))
@@ -1053,7 +1078,7 @@ DefinitionBlock ("SSDT-6.aml", "SSDT", 1, "SaSsdt", "SaSsdt ", 0x00003000)
                     Store (Or (0x00010000, DID6), Index (TMP8, 0x05))
                     Store (Or (0x00010000, DID7), Index (TMP8, 0x06))
                     Store (Or (0x00010000, DID8), Index (TMP8, 0x07))
-                    Return (TMP8) /* \_SB_.PCI0.GFX0._DOD.TMP8 */
+                    Return (TMP8) /* \_SB_.PCI0.IGPU._DOD.TMP8 */
                 }
 
                 If (LEqual (NDID, 0x09))
@@ -1079,7 +1104,7 @@ DefinitionBlock ("SSDT-6.aml", "SSDT", 1, "SaSsdt", "SaSsdt ", 0x00003000)
                     Store (Or (0x00010000, DID7), Index (TMP9, 0x06))
                     Store (Or (0x00010000, DID8), Index (TMP9, 0x07))
                     Store (Or (0x00010000, DID9), Index (TMP9, 0x08))
-                    Return (TMP9) /* \_SB_.PCI0.GFX0._DOD.TMP9 */
+                    Return (TMP9) /* \_SB_.PCI0.IGPU._DOD.TMP9 */
                 }
 
                 If (LEqual (NDID, 0x0A))
@@ -1107,7 +1132,7 @@ DefinitionBlock ("SSDT-6.aml", "SSDT", 1, "SaSsdt", "SaSsdt ", 0x00003000)
                     Store (Or (0x00010000, DID8), Index (TMPA, 0x07))
                     Store (Or (0x00010000, DID9), Index (TMPA, 0x08))
                     Store (Or (0x00010000, DIDA), Index (TMPA, 0x09))
-                    Return (TMPA) /* \_SB_.PCI0.GFX0._DOD.TMPA */
+                    Return (TMPA) /* \_SB_.PCI0.IGPU._DOD.TMPA */
                 }
 
                 If (LEqual (NDID, 0x0B))
@@ -1137,7 +1162,7 @@ DefinitionBlock ("SSDT-6.aml", "SSDT", 1, "SaSsdt", "SaSsdt ", 0x00003000)
                     Store (Or (0x00010000, DID9), Index (TMPB, 0x08))
                     Store (Or (0x00010000, DIDA), Index (TMPB, 0x09))
                     Store (Or (0x00010000, DIDB), Index (TMPB, 0x0A))
-                    Return (TMPB) /* \_SB_.PCI0.GFX0._DOD.TMPB */
+                    Return (TMPB) /* \_SB_.PCI0.IGPU._DOD.TMPB */
                 }
 
                 If (LEqual (NDID, 0x0C))
@@ -1169,7 +1194,7 @@ DefinitionBlock ("SSDT-6.aml", "SSDT", 1, "SaSsdt", "SaSsdt ", 0x00003000)
                     Store (Or (0x00010000, DIDA), Index (TMPC, 0x09))
                     Store (Or (0x00010000, DIDB), Index (TMPC, 0x0A))
                     Store (Or (0x00010000, DIDC), Index (TMPC, 0x0B))
-                    Return (TMPC) /* \_SB_.PCI0.GFX0._DOD.TMPC */
+                    Return (TMPC) /* \_SB_.PCI0.IGPU._DOD.TMPC */
                 }
 
                 If (LEqual (NDID, 0x0D))
@@ -1203,7 +1228,7 @@ DefinitionBlock ("SSDT-6.aml", "SSDT", 1, "SaSsdt", "SaSsdt ", 0x00003000)
                     Store (Or (0x00010000, DIDB), Index (TMPD, 0x0A))
                     Store (Or (0x00010000, DIDC), Index (TMPD, 0x0B))
                     Store (Or (0x00010000, DIDD), Index (TMPD, 0x0C))
-                    Return (TMPD) /* \_SB_.PCI0.GFX0._DOD.TMPD */
+                    Return (TMPD) /* \_SB_.PCI0.IGPU._DOD.TMPD */
                 }
 
                 If (LEqual (NDID, 0x0E))
@@ -1239,7 +1264,7 @@ DefinitionBlock ("SSDT-6.aml", "SSDT", 1, "SaSsdt", "SaSsdt ", 0x00003000)
                     Store (Or (0x00010000, DIDC), Index (TMPE, 0x0B))
                     Store (Or (0x00010000, DIDD), Index (TMPE, 0x0C))
                     Store (Or (0x00010000, DIDE), Index (TMPE, 0x0D))
-                    Return (TMPE) /* \_SB_.PCI0.GFX0._DOD.TMPE */
+                    Return (TMPE) /* \_SB_.PCI0.IGPU._DOD.TMPE */
                 }
 
                 If (LEqual (NDID, 0x0F))
@@ -1277,7 +1302,7 @@ DefinitionBlock ("SSDT-6.aml", "SSDT", 1, "SaSsdt", "SaSsdt ", 0x00003000)
                     Store (Or (0x00010000, DIDD), Index (TMPF, 0x0C))
                     Store (Or (0x00010000, DIDE), Index (TMPF, 0x0D))
                     Store (Or (0x00010000, DIDF), Index (TMPF, 0x0E))
-                    Return (TMPF) /* \_SB_.PCI0.GFX0._DOD.TMPF */
+                    Return (TMPF) /* \_SB_.PCI0.IGPU._DOD.TMPF */
                 }
 
                 Return (Package (0x01)
@@ -2230,7 +2255,7 @@ DefinitionBlock ("SSDT-6.aml", "SSDT", 1, "SaSsdt", "SaSsdt ", 0x00003000)
                 {
                     If (LAnd (LGreaterEqual (Arg0, Zero), LLessEqual (Arg0, 0x64)))
                     {
-                        \_SB.PCI0.GFX0.AINT (One, Arg0)
+                        \_SB.PCI0.IGPU.AINT (One, Arg0)
                         Store (Arg0, BRTL) /* \BRTL */
                     }
                 }
@@ -2641,116 +2666,116 @@ DefinitionBlock ("SSDT-6.aml", "SSDT", 1, "SaSsdt", "SaSsdt ", 0x00003000)
                 {
                     If (LEqual (GESF, Zero))
                     {
-                        Store (0x0659, PARM) /* \_SB_.PCI0.GFX0.PARM */
-                        Store (Zero, GESF) /* \_SB_.PCI0.GFX0.GESF */
-                        Return (SUCC) /* \_SB_.PCI0.GFX0.SUCC */
+                        Store (0x0659, PARM) /* \_SB_.PCI0.IGPU.PARM */
+                        Store (Zero, GESF) /* \_SB_.PCI0.IGPU.GESF */
+                        Return (SUCC) /* \_SB_.PCI0.IGPU.SUCC */
                     }
 
                     If (LEqual (GESF, One))
                     {
-                        Store (0x00300482, PARM) /* \_SB_.PCI0.GFX0.PARM */
+                        Store (0x00300482, PARM) /* \_SB_.PCI0.IGPU.PARM */
                         If (LEqual (S0ID, One))
                         {
-                            Or (PARM, 0x0100, PARM) /* \_SB_.PCI0.GFX0.PARM */
+                            Or (PARM, 0x0100, PARM) /* \_SB_.PCI0.IGPU.PARM */
                         }
 
-                        Store (Zero, GESF) /* \_SB_.PCI0.GFX0.GESF */
-                        Return (SUCC) /* \_SB_.PCI0.GFX0.SUCC */
+                        Store (Zero, GESF) /* \_SB_.PCI0.IGPU.GESF */
+                        Return (SUCC) /* \_SB_.PCI0.IGPU.SUCC */
                     }
 
                     If (LEqual (GESF, 0x04))
                     {
-                        And (PARM, 0xEFFF0000, PARM) /* \_SB_.PCI0.GFX0.PARM */
-                        And (PARM, ShiftLeft (DerefOf (Index (DBTB, IBTT)), 0x10), PARM) /* \_SB_.PCI0.GFX0.PARM */
-                        Or (IBTT, PARM, PARM) /* \_SB_.PCI0.GFX0.PARM */
-                        Store (Zero, GESF) /* \_SB_.PCI0.GFX0.GESF */
-                        Return (SUCC) /* \_SB_.PCI0.GFX0.SUCC */
+                        And (PARM, 0xEFFF0000, PARM) /* \_SB_.PCI0.IGPU.PARM */
+                        And (PARM, ShiftLeft (DerefOf (Index (DBTB, IBTT)), 0x10), PARM) /* \_SB_.PCI0.IGPU.PARM */
+                        Or (IBTT, PARM, PARM) /* \_SB_.PCI0.IGPU.PARM */
+                        Store (Zero, GESF) /* \_SB_.PCI0.IGPU.GESF */
+                        Return (SUCC) /* \_SB_.PCI0.IGPU.SUCC */
                     }
 
                     If (LEqual (GESF, 0x05))
                     {
-                        Store (IPSC, PARM) /* \_SB_.PCI0.GFX0.PARM */
-                        Or (PARM, ShiftLeft (IPAT, 0x08), PARM) /* \_SB_.PCI0.GFX0.PARM */
-                        Add (PARM, 0x0100, PARM) /* \_SB_.PCI0.GFX0.PARM */
-                        Or (PARM, ShiftLeft (LIDS, 0x10), PARM) /* \_SB_.PCI0.GFX0.PARM */
-                        Add (PARM, 0x00010000, PARM) /* \_SB_.PCI0.GFX0.PARM */
-                        Or (PARM, ShiftLeft (IBIA, 0x14), PARM) /* \_SB_.PCI0.GFX0.PARM */
-                        Store (Zero, GESF) /* \_SB_.PCI0.GFX0.GESF */
-                        Return (SUCC) /* \_SB_.PCI0.GFX0.SUCC */
+                        Store (IPSC, PARM) /* \_SB_.PCI0.IGPU.PARM */
+                        Or (PARM, ShiftLeft (IPAT, 0x08), PARM) /* \_SB_.PCI0.IGPU.PARM */
+                        Add (PARM, 0x0100, PARM) /* \_SB_.PCI0.IGPU.PARM */
+                        Or (PARM, ShiftLeft (LIDS, 0x10), PARM) /* \_SB_.PCI0.IGPU.PARM */
+                        Add (PARM, 0x00010000, PARM) /* \_SB_.PCI0.IGPU.PARM */
+                        Or (PARM, ShiftLeft (IBIA, 0x14), PARM) /* \_SB_.PCI0.IGPU.PARM */
+                        Store (Zero, GESF) /* \_SB_.PCI0.IGPU.GESF */
+                        Return (SUCC) /* \_SB_.PCI0.IGPU.SUCC */
                     }
 
                     If (LEqual (GESF, 0x07))
                     {
-                        Store (GIVD, PARM) /* \_SB_.PCI0.GFX0.PARM */
-                        XOr (PARM, One, PARM) /* \_SB_.PCI0.GFX0.PARM */
-                        Or (PARM, ShiftLeft (GMFN, One), PARM) /* \_SB_.PCI0.GFX0.PARM */
-                        Or (PARM, 0x1800, PARM) /* \_SB_.PCI0.GFX0.PARM */
-                        Or (PARM, ShiftLeft (IDMS, 0x11), PARM) /* \_SB_.PCI0.GFX0.PARM */
+                        Store (GIVD, PARM) /* \_SB_.PCI0.IGPU.PARM */
+                        XOr (PARM, One, PARM) /* \_SB_.PCI0.IGPU.PARM */
+                        Or (PARM, ShiftLeft (GMFN, One), PARM) /* \_SB_.PCI0.IGPU.PARM */
+                        Or (PARM, 0x1800, PARM) /* \_SB_.PCI0.IGPU.PARM */
+                        Or (PARM, ShiftLeft (IDMS, 0x11), PARM) /* \_SB_.PCI0.IGPU.PARM */
                         Or (ShiftLeft (DerefOf (Index (DerefOf (Index (CDCT, HVCO)), CDVL)), 0x15
-                            ), PARM, PARM) /* \_SB_.PCI0.GFX0.PARM */
-                        Store (One, GESF) /* \_SB_.PCI0.GFX0.GESF */
-                        Return (SUCC) /* \_SB_.PCI0.GFX0.SUCC */
+                            ), PARM, PARM) /* \_SB_.PCI0.IGPU.PARM */
+                        Store (One, GESF) /* \_SB_.PCI0.IGPU.GESF */
+                        Return (SUCC) /* \_SB_.PCI0.IGPU.SUCC */
                     }
 
                     If (LEqual (GESF, 0x0A))
                     {
-                        Store (Zero, PARM) /* \_SB_.PCI0.GFX0.PARM */
+                        Store (Zero, PARM) /* \_SB_.PCI0.IGPU.PARM */
                         If (ISSC)
                         {
-                            Or (PARM, 0x03, PARM) /* \_SB_.PCI0.GFX0.PARM */
+                            Or (PARM, 0x03, PARM) /* \_SB_.PCI0.IGPU.PARM */
                         }
 
-                        Store (Zero, GESF) /* \_SB_.PCI0.GFX0.GESF */
-                        Return (SUCC) /* \_SB_.PCI0.GFX0.SUCC */
+                        Store (Zero, GESF) /* \_SB_.PCI0.IGPU.GESF */
+                        Return (SUCC) /* \_SB_.PCI0.IGPU.SUCC */
                     }
 
                     If (LEqual (GESF, 0x0B))
                     {
-                        Store (KSV0, PARM) /* \_SB_.PCI0.GFX0.PARM */
-                        Store (KSV1, GESF) /* \_SB_.PCI0.GFX0.GESF */
-                        Return (SUCC) /* \_SB_.PCI0.GFX0.SUCC */
+                        Store (KSV0, PARM) /* \_SB_.PCI0.IGPU.PARM */
+                        Store (KSV1, GESF) /* \_SB_.PCI0.IGPU.GESF */
+                        Return (SUCC) /* \_SB_.PCI0.IGPU.SUCC */
                     }
 
-                    Store (Zero, GESF) /* \_SB_.PCI0.GFX0.GESF */
-                    Return (CRIT) /* \_SB_.PCI0.GFX0.CRIT */
+                    Store (Zero, GESF) /* \_SB_.PCI0.IGPU.GESF */
+                    Return (CRIT) /* \_SB_.PCI0.IGPU.CRIT */
                 }
 
                 Method (SBCB, 0, Serialized)
                 {
                     If (LEqual (GESF, Zero))
                     {
-                        Store (Zero, PARM) /* \_SB_.PCI0.GFX0.PARM */
-                        Store (0x000F87DD, PARM) /* \_SB_.PCI0.GFX0.PARM */
-                        Store (Zero, GESF) /* \_SB_.PCI0.GFX0.GESF */
-                        Return (SUCC) /* \_SB_.PCI0.GFX0.SUCC */
+                        Store (Zero, PARM) /* \_SB_.PCI0.IGPU.PARM */
+                        Store (0x000F87DD, PARM) /* \_SB_.PCI0.IGPU.PARM */
+                        Store (Zero, GESF) /* \_SB_.PCI0.IGPU.GESF */
+                        Return (SUCC) /* \_SB_.PCI0.IGPU.SUCC */
                     }
 
                     If (LEqual (GESF, One))
                     {
-                        Store (Zero, GESF) /* \_SB_.PCI0.GFX0.GESF */
-                        Store (Zero, PARM) /* \_SB_.PCI0.GFX0.PARM */
-                        Return (SUCC) /* \_SB_.PCI0.GFX0.SUCC */
+                        Store (Zero, GESF) /* \_SB_.PCI0.IGPU.GESF */
+                        Store (Zero, PARM) /* \_SB_.PCI0.IGPU.PARM */
+                        Return (SUCC) /* \_SB_.PCI0.IGPU.SUCC */
                     }
 
                     If (LEqual (GESF, 0x03))
                     {
-                        Store (Zero, GESF) /* \_SB_.PCI0.GFX0.GESF */
-                        Store (Zero, PARM) /* \_SB_.PCI0.GFX0.PARM */
-                        Return (SUCC) /* \_SB_.PCI0.GFX0.SUCC */
+                        Store (Zero, GESF) /* \_SB_.PCI0.IGPU.GESF */
+                        Store (Zero, PARM) /* \_SB_.PCI0.IGPU.PARM */
+                        Return (SUCC) /* \_SB_.PCI0.IGPU.SUCC */
                     }
 
                     If (LEqual (GESF, 0x04))
                     {
-                        Store (Zero, GESF) /* \_SB_.PCI0.GFX0.GESF */
-                        Store (Zero, PARM) /* \_SB_.PCI0.GFX0.PARM */
-                        Return (SUCC) /* \_SB_.PCI0.GFX0.SUCC */
+                        Store (Zero, GESF) /* \_SB_.PCI0.IGPU.GESF */
+                        Store (Zero, PARM) /* \_SB_.PCI0.IGPU.PARM */
+                        Return (SUCC) /* \_SB_.PCI0.IGPU.SUCC */
                     }
 
                     If (LEqual (GESF, 0x05))
                     {
-                        Store (Zero, GESF) /* \_SB_.PCI0.GFX0.GESF */
-                        Store (Zero, PARM) /* \_SB_.PCI0.GFX0.PARM */
-                        Return (SUCC) /* \_SB_.PCI0.GFX0.SUCC */
+                        Store (Zero, GESF) /* \_SB_.PCI0.IGPU.GESF */
+                        Store (Zero, PARM) /* \_SB_.PCI0.IGPU.PARM */
+                        Return (SUCC) /* \_SB_.PCI0.IGPU.SUCC */
                     }
 
                     If (LEqual (GESF, 0x07))
@@ -2768,14 +2793,14 @@ DefinitionBlock ("SSDT-6.aml", "SSDT", 1, "SaSsdt", "SaSsdt ", 0x00003000)
                             Store (CLID, Local0)
                             If (And (0x80000000, Local0))
                             {
-                                And (CLID, 0x0F, CLID) /* \_SB_.PCI0.GFX0.CLID */
+                                And (CLID, 0x0F, CLID) /* \_SB_.PCI0.IGPU.CLID */
                                 GLID (CLID)
                             }
                         }
 
-                        Store (Zero, GESF) /* \_SB_.PCI0.GFX0.GESF */
-                        Store (Zero, PARM) /* \_SB_.PCI0.GFX0.PARM */
-                        Return (SUCC) /* \_SB_.PCI0.GFX0.SUCC */
+                        Store (Zero, GESF) /* \_SB_.PCI0.IGPU.GESF */
+                        Store (Zero, PARM) /* \_SB_.PCI0.IGPU.PARM */
+                        Return (SUCC) /* \_SB_.PCI0.IGPU.SUCC */
                     }
 
                     If (LEqual (GESF, 0x08))
@@ -2789,17 +2814,17 @@ DefinitionBlock ("SSDT-6.aml", "SSDT", 1, "SaSsdt", "SaSsdt ", 0x00003000)
                             }
                         }
 
-                        Store (Zero, GESF) /* \_SB_.PCI0.GFX0.GESF */
-                        Store (Zero, PARM) /* \_SB_.PCI0.GFX0.PARM */
-                        Return (SUCC) /* \_SB_.PCI0.GFX0.SUCC */
+                        Store (Zero, GESF) /* \_SB_.PCI0.IGPU.GESF */
+                        Store (Zero, PARM) /* \_SB_.PCI0.IGPU.PARM */
+                        Return (SUCC) /* \_SB_.PCI0.IGPU.SUCC */
                     }
 
                     If (LEqual (GESF, 0x09))
                     {
                         And (PARM, 0xFF, IBTT) /* \IBTT */
-                        Store (Zero, GESF) /* \_SB_.PCI0.GFX0.GESF */
-                        Store (Zero, PARM) /* \_SB_.PCI0.GFX0.PARM */
-                        Return (SUCC) /* \_SB_.PCI0.GFX0.SUCC */
+                        Store (Zero, GESF) /* \_SB_.PCI0.IGPU.GESF */
+                        Store (Zero, PARM) /* \_SB_.PCI0.IGPU.PARM */
+                        Return (SUCC) /* \_SB_.PCI0.IGPU.SUCC */
                     }
 
                     If (LEqual (GESF, 0x0A))
@@ -2812,9 +2837,9 @@ DefinitionBlock ("SSDT-6.aml", "SSDT", 1, "SaSsdt", "SaSsdt ", 0x00003000)
                         }
 
                         And (ShiftRight (PARM, 0x14), 0x07, IBIA) /* \IBIA */
-                        Store (Zero, GESF) /* \_SB_.PCI0.GFX0.GESF */
-                        Store (Zero, PARM) /* \_SB_.PCI0.GFX0.PARM */
-                        Return (SUCC) /* \_SB_.PCI0.GFX0.SUCC */
+                        Store (Zero, GESF) /* \_SB_.PCI0.IGPU.GESF */
+                        Store (Zero, PARM) /* \_SB_.PCI0.IGPU.PARM */
+                        Return (SUCC) /* \_SB_.PCI0.IGPU.SUCC */
                     }
 
                     If (LEqual (GESF, 0x0B))
@@ -2829,24 +2854,24 @@ DefinitionBlock ("SSDT-6.aml", "SSDT", 1, "SaSsdt", "SaSsdt ", 0x00003000)
                             And (ShiftRight (PARM, 0x11), 0x0F, IDMS) /* \IDMS */
                         }
 
-                        Store (Zero, GESF) /* \_SB_.PCI0.GFX0.GESF */
-                        Store (Zero, PARM) /* \_SB_.PCI0.GFX0.PARM */
-                        Return (SUCC) /* \_SB_.PCI0.GFX0.SUCC */
+                        Store (Zero, GESF) /* \_SB_.PCI0.IGPU.GESF */
+                        Store (Zero, PARM) /* \_SB_.PCI0.IGPU.PARM */
+                        Return (SUCC) /* \_SB_.PCI0.IGPU.SUCC */
                     }
 
                     If (LEqual (GESF, 0x10))
                     {
-                        Store (Zero, GESF) /* \_SB_.PCI0.GFX0.GESF */
-                        Store (Zero, PARM) /* \_SB_.PCI0.GFX0.PARM */
-                        Return (SUCC) /* \_SB_.PCI0.GFX0.SUCC */
+                        Store (Zero, GESF) /* \_SB_.PCI0.IGPU.GESF */
+                        Store (Zero, PARM) /* \_SB_.PCI0.IGPU.PARM */
+                        Return (SUCC) /* \_SB_.PCI0.IGPU.SUCC */
                     }
 
                     If (LEqual (GESF, 0x11))
                     {
-                        Store (ShiftLeft (LIDS, 0x08), PARM) /* \_SB_.PCI0.GFX0.PARM */
-                        Add (PARM, 0x0100, PARM) /* \_SB_.PCI0.GFX0.PARM */
-                        Store (Zero, GESF) /* \_SB_.PCI0.GFX0.GESF */
-                        Return (SUCC) /* \_SB_.PCI0.GFX0.SUCC */
+                        Store (ShiftLeft (LIDS, 0x08), PARM) /* \_SB_.PCI0.IGPU.PARM */
+                        Add (PARM, 0x0100, PARM) /* \_SB_.PCI0.IGPU.PARM */
+                        Store (Zero, GESF) /* \_SB_.PCI0.IGPU.GESF */
+                        Return (SUCC) /* \_SB_.PCI0.IGPU.SUCC */
                     }
 
                     If (LEqual (GESF, 0x12))
@@ -2859,8 +2884,8 @@ DefinitionBlock ("SSDT-6.aml", "SSDT", 1, "SaSsdt", "SaSsdt ", 0x00003000)
                             }
                             Else
                             {
-                                Store (Zero, GESF) /* \_SB_.PCI0.GFX0.GESF */
-                                Return (CRIT) /* \_SB_.PCI0.GFX0.CRIT */
+                                Store (Zero, GESF) /* \_SB_.PCI0.IGPU.GESF */
+                                Return (CRIT) /* \_SB_.PCI0.IGPU.CRIT */
                             }
                         }
                         Else
@@ -2868,24 +2893,24 @@ DefinitionBlock ("SSDT-6.aml", "SSDT", 1, "SaSsdt", "SaSsdt ", 0x00003000)
                             Store (Zero, ISSC) /* \ISSC */
                         }
 
-                        Store (Zero, GESF) /* \_SB_.PCI0.GFX0.GESF */
-                        Store (Zero, PARM) /* \_SB_.PCI0.GFX0.PARM */
-                        Return (SUCC) /* \_SB_.PCI0.GFX0.SUCC */
+                        Store (Zero, GESF) /* \_SB_.PCI0.IGPU.GESF */
+                        Store (Zero, PARM) /* \_SB_.PCI0.IGPU.PARM */
+                        Return (SUCC) /* \_SB_.PCI0.IGPU.SUCC */
                     }
 
                     If (LEqual (GESF, 0x13))
                     {
-                        Store (Zero, GESF) /* \_SB_.PCI0.GFX0.GESF */
-                        Store (Zero, PARM) /* \_SB_.PCI0.GFX0.PARM */
-                        Return (SUCC) /* \_SB_.PCI0.GFX0.SUCC */
+                        Store (Zero, GESF) /* \_SB_.PCI0.IGPU.GESF */
+                        Store (Zero, PARM) /* \_SB_.PCI0.IGPU.PARM */
+                        Return (SUCC) /* \_SB_.PCI0.IGPU.SUCC */
                     }
 
                     If (LEqual (GESF, 0x14))
                     {
                         And (PARM, 0x0F, PAVP) /* \PAVP */
-                        Store (Zero, GESF) /* \_SB_.PCI0.GFX0.GESF */
-                        Store (Zero, PARM) /* \_SB_.PCI0.GFX0.PARM */
-                        Return (SUCC) /* \_SB_.PCI0.GFX0.SUCC */
+                        Store (Zero, GESF) /* \_SB_.PCI0.IGPU.GESF */
+                        Store (Zero, PARM) /* \_SB_.PCI0.IGPU.PARM */
+                        Return (SUCC) /* \_SB_.PCI0.IGPU.SUCC */
                     }
 
                     If (LEqual (GESF, 0x15))
@@ -2908,13 +2933,13 @@ DefinitionBlock ("SSDT-6.aml", "SSDT", 1, "SaSsdt", "SaSsdt ", 0x00003000)
                             Notify (\_SB.PCI0, Zero) // Bus Check
                         }
 
-                        Store (Zero, GESF) /* \_SB_.PCI0.GFX0.GESF */
-                        Store (Zero, PARM) /* \_SB_.PCI0.GFX0.PARM */
-                        Return (SUCC) /* \_SB_.PCI0.GFX0.SUCC */
+                        Store (Zero, GESF) /* \_SB_.PCI0.IGPU.GESF */
+                        Store (Zero, PARM) /* \_SB_.PCI0.IGPU.PARM */
+                        Return (SUCC) /* \_SB_.PCI0.IGPU.SUCC */
                     }
 
-                    Store (Zero, GESF) /* \_SB_.PCI0.GFX0.GESF */
-                    Return (SUCC) /* \_SB_.PCI0.GFX0.SUCC */
+                    Store (Zero, GESF) /* \_SB_.PCI0.IGPU.GESF */
+                    Return (SUCC) /* \_SB_.PCI0.IGPU.SUCC */
                 }
 
                 If (LEqual (GEFC, 0x04))
@@ -2956,8 +2981,8 @@ DefinitionBlock ("SSDT-6.aml", "SSDT", 1, "SaSsdt", "SaSsdt ", 0x00003000)
                     Return (One)
                 }
 
-                Store (Arg0, CEVT) /* \_SB_.PCI0.GFX0.CEVT */
-                Store (0x03, CSTS) /* \_SB_.PCI0.GFX0.CSTS */
+                Store (Arg0, CEVT) /* \_SB_.PCI0.IGPU.CEVT */
+                Store (0x03, CSTS) /* \_SB_.PCI0.IGPU.CSTS */
                 If (LAnd (LEqual (CHPD, Zero), LEqual (Arg1, Zero)))
                 {
                     If (LOr (LGreater (OSYS, 0x07D0), LLess (OSYS, 0x07D6)))
@@ -2966,7 +2991,7 @@ DefinitionBlock ("SSDT-6.aml", "SSDT", 1, "SaSsdt", "SaSsdt ", 0x00003000)
                     }
                     Else
                     {
-                        Notify (\_SB.PCI0.GFX0, Arg1)
+                        Notify (\_SB.PCI0.IGPU, Arg1)
                     }
                 }
 
@@ -2976,7 +3001,7 @@ DefinitionBlock ("SSDT-6.aml", "SSDT", 1, "SaSsdt", "SaSsdt ", 0x00003000)
                 }
                 Else
                 {
-                    Notify (\_SB.PCI0.GFX0, 0x80) // Status Change
+                    Notify (\_SB.PCI0.IGPU, 0x80) // Status Change
                 }
 
                 Return (Zero)
@@ -2984,7 +3009,7 @@ DefinitionBlock ("SSDT-6.aml", "SSDT", 1, "SaSsdt", "SaSsdt ", 0x00003000)
 
             Method (GHDS, 1, NotSerialized)
             {
-                Store (Arg0, TIDX) /* \_SB_.PCI0.GFX0.TIDX */
+                Store (Arg0, TIDX) /* \_SB_.PCI0.IGPU.TIDX */
                 Return (GNOT (One, Zero))
             }
 
@@ -2992,16 +3017,16 @@ DefinitionBlock ("SSDT-6.aml", "SSDT", 1, "SaSsdt", "SaSsdt ", 0x00003000)
             {
                 If (LEqual (Arg0, One))
                 {
-                    Store (0x03, CLID) /* \_SB_.PCI0.GFX0.CLID */
+                    Store (0x03, CLID) /* \_SB_.PCI0.IGPU.CLID */
                 }
                 Else
                 {
-                    Store (Arg0, CLID) /* \_SB_.PCI0.GFX0.CLID */
+                    Store (Arg0, CLID) /* \_SB_.PCI0.IGPU.CLID */
                 }
 
                 If (GNOT (0x02, Zero))
                 {
-                    Or (CLID, 0x80000000, CLID) /* \_SB_.PCI0.GFX0.CLID */
+                    Or (CLID, 0x80000000, CLID) /* \_SB_.PCI0.IGPU.CLID */
                     Return (One)
                 }
 
@@ -3010,7 +3035,7 @@ DefinitionBlock ("SSDT-6.aml", "SSDT", 1, "SaSsdt", "SaSsdt ", 0x00003000)
 
             Method (GDCK, 1, NotSerialized)
             {
-                Store (Arg0, CDCK) /* \_SB_.PCI0.GFX0.CDCK */
+                Store (Arg0, CDCK) /* \_SB_.PCI0.IGPU.CDCK */
                 Return (GNOT (0x04, Zero))
             }
 
@@ -3026,8 +3051,8 @@ DefinitionBlock ("SSDT-6.aml", "SSDT", 1, "SaSsdt", "SaSsdt ", 0x00003000)
 
             Method (IUEH, 1, Serialized)
             {
-                And (IUER, 0xC0, IUER) /* \_SB_.PCI0.GFX0.IUER */
-                XOr (IUER, ShiftLeft (One, Arg0), IUER) /* \_SB_.PCI0.GFX0.IUER */
+                And (IUER, 0xC0, IUER) /* \_SB_.PCI0.IGPU.IUER */
+                XOr (IUER, ShiftLeft (One, Arg0), IUER) /* \_SB_.PCI0.IGPU.IUER */
                 If (LLessEqual (Arg0, 0x04))
                 {
                     Return (AINT (0x05, Zero))
@@ -3052,8 +3077,8 @@ DefinitionBlock ("SSDT-6.aml", "SSDT", 1, "SaSsdt", "SaSsdt ", 0x00003000)
 
                 If (LAnd (LGreaterEqual (Arg0, 0x05), LLessEqual (Arg0, 0x07)))
                 {
-                    Store (ShiftLeft (One, Arg0), ASLC) /* \_SB_.PCI0.GFX0.ASLC */
-                    Store (One, ASLE) /* \_SB_.PCI0.GFX0.ASLE */
+                    Store (ShiftLeft (One, Arg0), ASLC) /* \_SB_.PCI0.IGPU.ASLC */
+                    Store (One, ASLE) /* \_SB_.PCI0.IGPU.ASLE */
                     Store (Zero, Local2)
                     While (LAnd (LLess (Local2, 0xFA), LNotEqual (ASLC, Zero)))
                     {
@@ -3074,17 +3099,17 @@ DefinitionBlock ("SSDT-6.aml", "SSDT", 1, "SaSsdt", "SaSsdt ", 0x00003000)
                         {
                             If (And (Local1, 0x06))
                             {
-                                Store (0x06, PFIT) /* \_SB_.PCI0.GFX0.PFIT */
+                                Store (0x06, PFIT) /* \_SB_.PCI0.IGPU.PFIT */
                             }
                             Else
                             {
                                 If (And (Local1, 0x08))
                                 {
-                                    Store (0x08, PFIT) /* \_SB_.PCI0.GFX0.PFIT */
+                                    Store (0x08, PFIT) /* \_SB_.PCI0.IGPU.PFIT */
                                 }
                                 Else
                                 {
-                                    Store (One, PFIT) /* \_SB_.PCI0.GFX0.PFIT */
+                                    Store (One, PFIT) /* \_SB_.PCI0.IGPU.PFIT */
                                 }
                             }
                         }
@@ -3093,17 +3118,17 @@ DefinitionBlock ("SSDT-6.aml", "SSDT", 1, "SaSsdt", "SaSsdt ", 0x00003000)
                         {
                             If (And (Local1, 0x08))
                             {
-                                Store (0x08, PFIT) /* \_SB_.PCI0.GFX0.PFIT */
+                                Store (0x08, PFIT) /* \_SB_.PCI0.IGPU.PFIT */
                             }
                             Else
                             {
                                 If (And (Local1, One))
                                 {
-                                    Store (One, PFIT) /* \_SB_.PCI0.GFX0.PFIT */
+                                    Store (One, PFIT) /* \_SB_.PCI0.IGPU.PFIT */
                                 }
                                 Else
                                 {
-                                    Store (0x06, PFIT) /* \_SB_.PCI0.GFX0.PFIT */
+                                    Store (0x06, PFIT) /* \_SB_.PCI0.IGPU.PFIT */
                                 }
                             }
                         }
@@ -3112,43 +3137,43 @@ DefinitionBlock ("SSDT-6.aml", "SSDT", 1, "SaSsdt", "SaSsdt ", 0x00003000)
                         {
                             If (And (Local1, One))
                             {
-                                Store (One, PFIT) /* \_SB_.PCI0.GFX0.PFIT */
+                                Store (One, PFIT) /* \_SB_.PCI0.IGPU.PFIT */
                             }
                             Else
                             {
                                 If (And (Local1, 0x06))
                                 {
-                                    Store (0x06, PFIT) /* \_SB_.PCI0.GFX0.PFIT */
+                                    Store (0x06, PFIT) /* \_SB_.PCI0.IGPU.PFIT */
                                 }
                                 Else
                                 {
-                                    Store (0x08, PFIT) /* \_SB_.PCI0.GFX0.PFIT */
+                                    Store (0x08, PFIT) /* \_SB_.PCI0.IGPU.PFIT */
                                 }
                             }
                         }
                     }
                     Else
                     {
-                        XOr (PFIT, 0x07, PFIT) /* \_SB_.PCI0.GFX0.PFIT */
+                        XOr (PFIT, 0x07, PFIT) /* \_SB_.PCI0.IGPU.PFIT */
                     }
 
-                    Or (PFIT, 0x80000000, PFIT) /* \_SB_.PCI0.GFX0.PFIT */
-                    Store (0x04, ASLC) /* \_SB_.PCI0.GFX0.ASLC */
+                    Or (PFIT, 0x80000000, PFIT) /* \_SB_.PCI0.IGPU.PFIT */
+                    Store (0x04, ASLC) /* \_SB_.PCI0.IGPU.ASLC */
                 }
                 Else
                 {
                     If (LEqual (Arg0, One))
                     {
-                        Store (Divide (Multiply (Arg1, 0xFF), 0x64, ), BCLP) /* \_SB_.PCI0.GFX0.BCLP */
-                        Or (BCLP, 0x80000000, BCLP) /* \_SB_.PCI0.GFX0.BCLP */
-                        Store (0x02, ASLC) /* \_SB_.PCI0.GFX0.ASLC */
+                        Store (Divide (Multiply (Arg1, 0xFF), 0x64, ), BCLP) /* \_SB_.PCI0.IGPU.BCLP */
+                        Or (BCLP, 0x80000000, BCLP) /* \_SB_.PCI0.IGPU.BCLP */
+                        Store (0x02, ASLC) /* \_SB_.PCI0.IGPU.ASLC */
                     }
                     Else
                     {
                         If (LEqual (Arg0, Zero))
                         {
-                            Store (Arg1, ALSI) /* \_SB_.PCI0.GFX0.ALSI */
-                            Store (One, ASLC) /* \_SB_.PCI0.GFX0.ASLC */
+                            Store (Arg1, ALSI) /* \_SB_.PCI0.IGPU.ALSI */
+                            Store (One, ASLC) /* \_SB_.PCI0.IGPU.ASLC */
                         }
                         Else
                         {
@@ -3157,7 +3182,7 @@ DefinitionBlock ("SSDT-6.aml", "SSDT", 1, "SaSsdt", "SaSsdt ", 0x00003000)
                     }
                 }
 
-                Store (One, ASLE) /* \_SB_.PCI0.GFX0.ASLE */
+                Store (One, ASLE) /* \_SB_.PCI0.IGPU.ASLE */
                 Return (Zero)
             }
 
@@ -3208,5 +3233,6 @@ DefinitionBlock ("SSDT-6.aml", "SSDT", 1, "SaSsdt", "SaSsdt ", 0x00003000)
     }
     Store ("has0-8series-Clean_Compile_v1.3 dsdt edits, github.com/toleda", Debug)
     Store ("has2-dsdt-ami-8_series-PEG0_add_dsdt-p0p2_v1.1 dsdt edits, github.com/toleda", Debug)
+    Store ("has1-dsdt-ami-8_series_hdmi_audio-1_v3.0 dsdt edits, github.com/toleda", Debug)
 }
 
