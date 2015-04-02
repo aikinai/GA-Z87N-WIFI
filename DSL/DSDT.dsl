@@ -41,9 +41,9 @@ DefinitionBlock ("DSDT.aml", "DSDT", 2, "ALASKA", "A M I", 0x00000088)
      */
     External (_SB_.PCI0.PAUD.PUAM, MethodObj)    // Warning: Unresolved method, guessing 0 arguments
     External (_SB_.PCI0.P0P2, UnknownObj)
-    External (_SB_.PCI0.P0P2.PEGP, UnknownObj)
-    External (_SB_.PCI0.P0P2.PEGP.EPON, MethodObj)    // Warning: Unresolved method, guessing 0 arguments
-    External (_SB_.PCI0.RP05.PEGP.EPON, MethodObj)    // Warning: Unresolved method, guessing 0 arguments
+    External (_SB_.PCI0.P0P2.GFX0, UnknownObj)
+    External (_SB_.PCI0.P0P2.GFX0.EPON, MethodObj)    // Warning: Unresolved method, guessing 0 arguments
+    External (_SB_.PCI0.RP05.GFX0.EPON, MethodObj)    // Warning: Unresolved method, guessing 0 arguments
     External (_SB_.PCI0.XHC_.DUAM, MethodObj)    // Warning: Unresolved method, guessing 0 arguments
     External (_SB_.TPM_.PTS_, MethodObj)    // Warning: Unresolved method, guessing 1 arguments
     External (PS0X, MethodObj)    // Warning: Unresolved method, guessing 0 arguments
@@ -68,13 +68,13 @@ DefinitionBlock ("DSDT.aml", "DSDT", 2, "ALASKA", "A M I", 0x00000088)
     External (_SB_.PCCD.PENB, UnknownObj)
     External (_SB_.PCI0.B0D3.ABAR, FieldUnitObj)
     External (_SB_.PCI0.B0D3.BARA, IntObj)
-    External (_SB_.PCI0.GFX0.CLID, FieldUnitObj)
-    External (_SB_.PCI0.GFX0.DD1F, UnknownObj)
-    External (_SB_.PCI0.GFX0.GSCI, MethodObj)    // 0 Arguments
-    External (_SB_.PCI0.GFX0.GSSE, FieldUnitObj)
-    External (_SB_.PCI0.GFX0.IUEH, MethodObj)    // 1 Arguments
-    External (_SB_.PCI0.GFX0.STAT, FieldUnitObj)
-    External (_SB_.PCI0.GFX0.TCHE, FieldUnitObj)
+    External (_SB_.PCI0.IGPU.CLID, FieldUnitObj)
+    External (_SB_.PCI0.IGPU.DD1F, UnknownObj)
+    External (_SB_.PCI0.IGPU.GSCI, MethodObj)    // 0 Arguments
+    External (_SB_.PCI0.IGPU.GSSE, FieldUnitObj)
+    External (_SB_.PCI0.IGPU.IUEH, MethodObj)    // 1 Arguments
+    External (_SB_.PCI0.IGPU.STAT, FieldUnitObj)
+    External (_SB_.PCI0.IGPU.TCHE, FieldUnitObj)
     External (_SB_.PCI0.P0P2.HPME, MethodObj)    // 0 Arguments
     External (_SB_.PCI0.PEG1, UnknownObj)
     External (_SB_.PCI0.PEG1.HPME, MethodObj)    // 0 Arguments
@@ -6389,7 +6389,7 @@ DefinitionBlock ("DSDT.aml", "DSDT", 2, "ALASKA", "A M I", 0x00000088)
             {
                 Name (_ADR, 0x00040000)  // _ADR: Address
             }
-            Device (P0P2)
+            Device (PEGP)
             {
                 Name (_ADR, 0x00010000)
                 Method (_PRW, 0, NotSerialized)
@@ -6403,6 +6403,62 @@ DefinitionBlock ("DSDT.aml", "DSDT", 2, "ALASKA", "A M I", 0x00000088)
                         Return (AR02 ())
                     }
                     Return (PR02 ())
+                }
+                Device (GFX0)
+                {
+                    Name (_ADR, Zero)
+                    Name (_SUN, One)
+                    Method (_DSM, 4, NotSerialized)
+                    {
+                        If (LEqual (Arg2, Zero)) { Return (Buffer() { 0x03 } ) }
+                        Return (Package()
+                        {
+                            "@0,connector-type", Buffer() { 0x00, 0x08, 0x00, 0x00 },
+                            "@1,connector-type", Buffer() { 0x00, 0x08, 0x00, 0x00 },
+                            "@2,connector-type", Buffer() { 0x00, 0x08, 0x00, 0x00 },
+                            "@3,connector-type", Buffer() { 0x00, 0x08, 0x00, 0x00 },
+                            "hda-gfx", Buffer() { "onboard-2" },
+                        })
+                    }
+                }
+                Device (HDAU)
+                {
+                    Name (_ADR, One)
+                    Method (_DSM, 4, NotSerialized)
+                    {
+                        If (LEqual (Arg2, Zero)) { Return (Buffer() { 0x03 } ) }
+                        Return (Package()
+                        {
+                            "layout-id", Buffer() { 0x01, 0x00, 0x00, 0x00 },
+                            "hda-gfx", Buffer() { "onboard-2" },
+                        })
+                    }
+                }
+            }
+            Device (IGPU)
+            {
+                Name (_ADR, 0x00020000)
+                Method (_DSM, 4, NotSerialized)
+                {
+                    If (LEqual (Arg2, Zero)) { Return (Buffer() { 0x03 } ) }
+                    Return (Package()
+                    {
+                        "AAPL,ig-platform-id", Buffer() { 0x03, 0x00, 0x22, 0x0D },
+                        "hda-gfx", Buffer() { "onboard-1" },
+                    })
+                }
+            }
+            Device (HDAU)
+            {
+                Name (_ADR, 0x00030000)
+                Method (_DSM, 4, NotSerialized)
+                {
+                    If (LEqual (Arg2, Zero)) { Return (Buffer() { 0x03 } ) }
+                    Return (Package()
+                    {
+                        "layout-id", Buffer() { 0x01, 0x00, 0x00, 0x00 },
+                        "hda-gfx", Buffer() { "onboard-1" },
+                    })
                 }
             }
         }
@@ -9424,6 +9480,15 @@ Method (GP2B, 2, Serialized)
             {
                 Return (GPRW (0x0D, 0x04))
             }
+            Method (_DSM, 4, NotSerialized)
+            {
+                If (LEqual (Arg2, Zero)) { Return (Buffer() { 0x03 } ) }
+                Return (Package()
+                {
+                    "layout-id", Buffer() { 0x01, 0x00, 0x00, 0x00 },
+                    "PinConfigurations", Buffer(Zero) {},
+                })
+            }
         }
 
         Device (SAT0)
@@ -10737,14 +10802,14 @@ Method (GP2B, 2, Serialized)
         ADBG ("_WAK")
         If (LOr (LEqual (Arg0, 0x03), LEqual (Arg0, 0x04)))
         {
-            If (CondRefOf (\_SB.PCI0.P0P2.PEGP.EPON))
+            If (CondRefOf (\_SB.PCI0.P0P2.GFX0.EPON))
             {
-                \_SB.PCI0.P0P2.PEGP.EPON ()
+                \_SB.PCI0.P0P2.GFX0.EPON ()
             }
 
-            If (CondRefOf (\_SB.PCI0.RP05.PEGP.EPON))
+            If (CondRefOf (\_SB.PCI0.RP05.GFX0.EPON))
             {
-                \_SB.PCI0.RP05.PEGP.EPON ()
+                \_SB.PCI0.RP05.GFX0.EPON ()
             }
         }
 
@@ -10756,18 +10821,18 @@ Method (GP2B, 2, Serialized)
 
         If (And (ICNF, 0x10))
         {
-            If (And (\_SB.PCI0.GFX0.TCHE, 0x0100))
+            If (And (\_SB.PCI0.IGPU.TCHE, 0x0100))
             {
                 If (LEqual (\_SB.IAOE.ITMR, One))
                 {
                     If (LAnd (And (\_SB.IAOE.IBT1, One), LOr (And (\_SB.IAOE.WKRS, 0x02), And (
                         \_SB.IAOE.WKRS, 0x10))))
                     {
-                        Store (Or (And (\_SB.PCI0.GFX0.STAT, 0xFFFFFFFFFFFFFFFC), One), \_SB.PCI0.GFX0.STAT) /* External reference */
+                        Store (Or (And (\_SB.PCI0.IGPU.STAT, 0xFFFFFFFFFFFFFFFC), One), \_SB.PCI0.IGPU.STAT) /* External reference */
                     }
                     Else
                     {
-                        Store (And (\_SB.PCI0.GFX0.STAT, 0xFFFFFFFFFFFFFFFC), \_SB.PCI0.GFX0.STAT) /* External reference */
+                        Store (And (\_SB.PCI0.IGPU.STAT, 0xFFFFFFFFFFFFFFFC), \_SB.PCI0.IGPU.STAT) /* External reference */
                     }
                 }
                 Else
@@ -10779,11 +10844,11 @@ Method (GP2B, 2, Serialized)
                             If (LAnd (And (\_SB.PCI0.LPCB.H_EC.ECRD (RefOf (\_SB.PCI0.LPCB.H_EC.IBT1)), One), LOr (And (\_SB.IAOE.WKRS, 0x02
                                 ), And (\_SB.IAOE.WKRS, 0x10))))
                             {
-                                Store (Or (And (\_SB.PCI0.GFX0.STAT, 0xFFFFFFFFFFFFFFFC), One), \_SB.PCI0.GFX0.STAT) /* External reference */
+                                Store (Or (And (\_SB.PCI0.IGPU.STAT, 0xFFFFFFFFFFFFFFFC), One), \_SB.PCI0.IGPU.STAT) /* External reference */
                             }
                             Else
                             {
-                                Store (And (\_SB.PCI0.GFX0.STAT, 0xFFFFFFFFFFFFFFFC), \_SB.PCI0.GFX0.STAT) /* External reference */
+                                Store (And (\_SB.PCI0.IGPU.STAT, 0xFFFFFFFFFFFFFFFC), \_SB.PCI0.IGPU.STAT) /* External reference */
                             }
                         }
                     }
@@ -10850,12 +10915,12 @@ Method (GP2B, 2, Serialized)
 
             If (And (GBSX, 0x40))
             {
-                \_SB.PCI0.GFX0.IUEH (0x06)
+                \_SB.PCI0.IGPU.IUEH (0x06)
             }
 
             If (And (GBSX, 0x80))
             {
-                \_SB.PCI0.GFX0.IUEH (0x07)
+                \_SB.PCI0.IGPU.IUEH (0x07)
             }
 
             If (LAnd (DTSE, LGreater (TCNT, One)))
@@ -10893,12 +10958,12 @@ Method (GP2B, 2, Serialized)
                     {
                         If (LEqual (LIDS, Zero))
                         {
-                            Store (0x80000000, \_SB.PCI0.GFX0.CLID) /* External reference */
+                            Store (0x80000000, \_SB.PCI0.IGPU.CLID) /* External reference */
                         }
 
                         If (LEqual (LIDS, One))
                         {
-                            Store (0x80000003, \_SB.PCI0.GFX0.CLID) /* External reference */
+                            Store (0x80000003, \_SB.PCI0.IGPU.CLID) /* External reference */
                         }
                     }
 
@@ -11535,7 +11600,7 @@ Method (GP2B, 2, Serialized)
                 0x02, 
                 Package (0x01)
                 {
-                    "\\_SB.PCI0.GFX0"
+                    "\\_SB.PCI0.IGPU"
                 }, 
 
                 Package (0x01)
@@ -11547,7 +11612,7 @@ Method (GP2B, 2, Serialized)
             {
                 Package (0x02)
                 {
-                    "\\_SB.PCI0.GFX0", 
+                    "\\_SB.PCI0.IGPU", 
                     0xFFFFFFFF
                 }, 
 
@@ -11657,7 +11722,7 @@ Method (GP2B, 2, Serialized)
 
                 Package (0x03)
                 {
-                    "\\_SB.PCI0.GFX0", 
+                    "\\_SB.PCI0.IGPU", 
                     One, 
                     Package (0x02)
                     {
@@ -12072,7 +12137,7 @@ Method (GP2B, 2, Serialized)
                                         One, 
                                         Package (0x01)
                                         {
-                                            "\\_SB.PCI0.GFX0"
+                                            "\\_SB.PCI0.IGPU"
                                         }
                                     })
                                 }
@@ -12379,7 +12444,7 @@ Method (GP2B, 2, Serialized)
     {
         If (LEqual (And (DIDX, 0x0F00), 0x0400))
         {
-            Notify (\_SB.PCI0.GFX0.DD1F, Arg0)
+            Notify (\_SB.PCI0.IGPU.DD1F, Arg0)
         }
     }
 
@@ -12439,7 +12504,7 @@ Method (GP2B, 2, Serialized)
             {
                 \_SB.PCI0.P0P2.HPME ()
                 Notify (\_SB.PCI0.P0P2, 0x02) // Device Wake
-                Notify (\_SB.PCI0.P0P2.PEGP, 0x02) // Device Wake
+                Notify (\_SB.PCI0.P0P2.GFX0, 0x02) // Device Wake
             }
 
             If (LEqual (\_SB.PCI0.D1F1, One))
@@ -12716,9 +12781,9 @@ Method (GP2B, 2, Serialized)
 
         Method (_L06, 0, NotSerialized)  // _Lxx: Level-Triggered GPE
         {
-            If (LAnd (\_SB.PCI0.GFX0.GSSE, LNot (GSMI)))
+            If (LAnd (\_SB.PCI0.IGPU.GSSE, LNot (GSMI)))
             {
-                \_SB.PCI0.GFX0.GSCI ()
+                \_SB.PCI0.IGPU.GSCI ()
             }
         }
 
@@ -13720,7 +13785,7 @@ Method (GP2B, 2, Serialized)
             Name (_UID, One)  // _UID: Unique ID
             Method (_STA, 0, NotSerialized)  // _STA: Status
             {
-                Store (0x03, ^^^GFX0.CLID) /* External reference */
+                Store (0x03, ^^^IGPU.CLID) /* External reference */
                 Return (Zero)
             }
 
@@ -13920,5 +13985,6 @@ Method (GP2B, 2, Serialized)
     }
     Store ("has0-8series-Clean_Compile_v1.3 dsdt edits, github.com/toleda", Debug)
     Store ("has2-dsdt-ami-8_series-PEG0_add_dsdt-p0p2_v1.1 dsdt edits, github.com/toleda", Debug)
+    Store ("has1-dsdt-ami-8_series_hdmi_audio-1_v3.0 dsdt edits, github.com/toleda", Debug)
 }
 
