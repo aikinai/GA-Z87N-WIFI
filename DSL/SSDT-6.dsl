@@ -248,17 +248,17 @@ DefinitionBlock ("SSDT-6.aml", "SSDT", 1, "SaSsdt", "SaSsdt ", 0x00003000)
             Name (OPTS, Zero)
             Method (_DSM, 4, Serialized)  // _DSM: Device-Specific Method
             {
-                Name (_T_1, Zero)  // _T_x: Emitted by ASL Compiler
-                Name (_T_0, Zero)  // _T_x: Emitted by ASL Compiler
+                Name (T_1, Zero)  // T_x: Emitted by ASL Compiler
+                Name (T_0, Zero)  // T_x: Emitted by ASL Compiler
                 While (One)
                 {
-                    Store (ToInteger (Arg0), _T_0) /* \_SB_.PCI0.PEG0._DSM._T_0 */
-                    If (LEqual (_T_0, ToUUID ("e5c937d0-3553-4d7a-9117-ea4d19c3434d") /* Device Labeling Interface */))
+                    Store (ToInteger (Arg0), T_0) /* \_SB_.PCI0.PEG0._DSM.T_0 */
+                    If (LEqual (T_0, ToUUID ("e5c937d0-3553-4d7a-9117-ea4d19c3434d") /* Device Labeling Interface */))
                     {
                         While (One)
                         {
-                            Store (ToInteger (Arg2), _T_1) /* \_SB_.PCI0.PEG0._DSM._T_1 */
-                            If (LEqual (_T_1, Zero))
+                            Store (ToInteger (Arg2), T_1) /* \_SB_.PCI0.PEG0._DSM.T_1 */
+                            If (LEqual (T_1, Zero))
                             {
                                 If (LEqual (Arg1, 0x02))
                                 {
@@ -282,7 +282,7 @@ DefinitionBlock ("SSDT-6.aml", "SSDT", 1, "SaSsdt", "SaSsdt ", 0x00003000)
                             }
                             Else
                             {
-                                If (LEqual (_T_1, 0x04))
+                                If (LEqual (T_1, 0x04))
                                 {
                                     If (LEqual (Arg1, 0x02))
                                     {
@@ -306,7 +306,7 @@ DefinitionBlock ("SSDT-6.aml", "SSDT", 1, "SaSsdt", "SaSsdt ", 0x00003000)
                                 }
                                 Else
                                 {
-                                    If (LEqual (_T_1, 0x06))
+                                    If (LEqual (T_1, 0x06))
                                     {
                                         If (LEqual (Arg1, 0x02))
                                         {
@@ -414,17 +414,17 @@ DefinitionBlock ("SSDT-6.aml", "SSDT", 1, "SaSsdt", "SaSsdt ", 0x00003000)
             Name (OPTS, Zero)
             Method (_DSM, 4, Serialized)  // _DSM: Device-Specific Method
             {
-                Name (_T_1, Zero)  // _T_x: Emitted by ASL Compiler
-                Name (_T_0, Zero)  // _T_x: Emitted by ASL Compiler
+                Name (T_1, Zero)  // T_x: Emitted by ASL Compiler
+                Name (T_0, Zero)  // T_x: Emitted by ASL Compiler
                 While (One)
                 {
-                    Store (ToInteger (Arg0), _T_0) /* \_SB_.PCI0.PEG1._DSM._T_0 */
-                    If (LEqual (_T_0, ToUUID ("e5c937d0-3553-4d7a-9117-ea4d19c3434d") /* Device Labeling Interface */))
+                    Store (ToInteger (Arg0), T_0) /* \_SB_.PCI0.PEG1._DSM.T_0 */
+                    If (LEqual (T_0, ToUUID ("e5c937d0-3553-4d7a-9117-ea4d19c3434d") /* Device Labeling Interface */))
                     {
                         While (One)
                         {
-                            Store (ToInteger (Arg2), _T_1) /* \_SB_.PCI0.PEG1._DSM._T_1 */
-                            If (LEqual (_T_1, Zero))
+                            Store (ToInteger (Arg2), T_1) /* \_SB_.PCI0.PEG1._DSM.T_1 */
+                            If (LEqual (T_1, Zero))
                             {
                                 If (LEqual (Arg1, 0x02))
                                 {
@@ -448,7 +448,7 @@ DefinitionBlock ("SSDT-6.aml", "SSDT", 1, "SaSsdt", "SaSsdt ", 0x00003000)
                             }
                             Else
                             {
-                                If (LEqual (_T_1, 0x04))
+                                If (LEqual (T_1, 0x04))
                                 {
                                     If (LEqual (Arg1, 0x02))
                                     {
@@ -472,7 +472,7 @@ DefinitionBlock ("SSDT-6.aml", "SSDT", 1, "SaSsdt", "SaSsdt ", 0x00003000)
                                 }
                                 Else
                                 {
-                                    If (LEqual (_T_1, 0x06))
+                                    If (LEqual (T_1, 0x06))
                                     {
                                         If (LEqual (Arg1, 0x02))
                                         {
@@ -571,17 +571,17 @@ DefinitionBlock ("SSDT-6.aml", "SSDT", 1, "SaSsdt", "SaSsdt ", 0x00003000)
             Name (OPTS, Zero)
             Method (_DSM, 4, Serialized)  // _DSM: Device-Specific Method
             {
-                Name (_T_1, Zero)  // _T_x: Emitted by ASL Compiler
-                Name (_T_0, Zero)  // _T_x: Emitted by ASL Compiler
+                Name (T_1, Zero)  // T_x: Emitted by ASL Compiler
+                Name (T_0, Zero)  // T_x: Emitted by ASL Compiler
                 While (One)
                 {
-                    Store (ToInteger (Arg0), _T_0) /* \_SB_.PCI0.PEG2._DSM._T_0 */
-                    If (LEqual (_T_0, ToUUID ("e5c937d0-3553-4d7a-9117-ea4d19c3434d") /* Device Labeling Interface */))
+                    Store (ToInteger (Arg0), T_0) /* \_SB_.PCI0.PEG2._DSM.T_0 */
+                    If (LEqual (T_0, ToUUID ("e5c937d0-3553-4d7a-9117-ea4d19c3434d") /* Device Labeling Interface */))
                     {
                         While (One)
                         {
-                            Store (ToInteger (Arg2), _T_1) /* \_SB_.PCI0.PEG2._DSM._T_1 */
-                            If (LEqual (_T_1, Zero))
+                            Store (ToInteger (Arg2), T_1) /* \_SB_.PCI0.PEG2._DSM.T_1 */
+                            If (LEqual (T_1, Zero))
                             {
                                 If (LEqual (Arg1, 0x02))
                                 {
@@ -605,7 +605,7 @@ DefinitionBlock ("SSDT-6.aml", "SSDT", 1, "SaSsdt", "SaSsdt ", 0x00003000)
                             }
                             Else
                             {
-                                If (LEqual (_T_1, 0x04))
+                                If (LEqual (T_1, 0x04))
                                 {
                                     If (LEqual (Arg1, 0x02))
                                     {
@@ -629,7 +629,7 @@ DefinitionBlock ("SSDT-6.aml", "SSDT", 1, "SaSsdt", "SaSsdt ", 0x00003000)
                                 }
                                 Else
                                 {
-                                    If (LEqual (_T_1, 0x06))
+                                    If (LEqual (T_1, 0x06))
                                     {
                                         If (LEqual (Arg1, 0x02))
                                         {
@@ -897,7 +897,7 @@ DefinitionBlock ("SSDT-6.aml", "SSDT", 1, "SaSsdt", "SaSsdt ", 0x00003000)
         Device (GFX0)
         {
             Name (_ADR, 0x00020000)  // _ADR: Address
-            Method (_DEP, 0, NotSerialized)  // _DEP: Dependencies
+            Method (DEP, 0, NotSerialized)  // _DEP: Dependencies
             {
                 ADBG ("GFX0 DEP Call")
                 If (LEqual (S0ID, One))
@@ -911,7 +911,7 @@ DefinitionBlock ("SSDT-6.aml", "SSDT", 1, "SaSsdt", "SaSsdt ", 0x00003000)
                 Else
                 {
                     ADBG ("GFX0 DEP NULL")
-                    Return (Package (0x00) {})
+                    Return (Package (Zero) {})
                 }
             }
 
@@ -3298,5 +3298,6 @@ DefinitionBlock ("SSDT-6.aml", "SSDT", 1, "SaSsdt", "SaSsdt ", 0x00003000)
             }
         }
     }
+    Store ("has0-8series-Clean_Compile_v1.3 dsdt edits, github.com/toleda", Debug)
 }
 
