@@ -2190,9 +2190,9 @@ DefinitionBlock ("DSDT.aml", "DSDT", 2, "ALASKA", "A M I", 0x00000088)
                 CreateDWordField (Local0, Zero, CDW1)
                 CreateDWordField (Local0, 0x04, CDW2)
                 CreateDWordField (Local0, 0x08, CDW3)
-                If (^XHC.CUID (Arg0))
+                If (^XHC1.CUID (Arg0))
                 {
-                    Return (^XHC.POSC (Arg1, Arg2, Arg3))
+                    Return (^XHC1.POSC (Arg1, Arg2, Arg3))
                 }
                 Else
                 {
@@ -2200,7 +2200,7 @@ DefinitionBlock ("DSDT.aml", "DSDT", 2, "ALASKA", "A M I", 0x00000088)
                     {
                         If (LEqual (XCNT, Zero))
                         {
-                            ^XHC.XSEL ()
+                            ^XHC1.XSEL ()
                             Increment (XCNT)
                         }
                     }
@@ -7467,6 +7467,24 @@ Method (GP2B, 2, Serialized)
             {
                 Return (GPRW (0x0D, 0x04))
             }
+            Method (_DSM, 4, NotSerialized)
+            {
+                Store (Package (0x15) {
+                    "AAPL,slot-name", "Built In",
+                    "name", "Intel EHCI Controller",
+                    "model", Buffer(0x3E) {"Intel 8 Series Chipset Family USB Enhanced Host Controller #1"},
+                    "device_type", Buffer (0x0E) {"USB Controller"},
+                    "AAPL,current-available", 0x0834,
+                    "AAPL,current-extra", 0x0A8C,
+                    "AAPL,current-in-sleep", 0x03E8,
+                    "AAPL,current-extra-in-sleep", 0x0834,
+                    "AAPL,max-port-current-in-sleep", 0x0A8C,
+                    "AAPL,device-internal", 0x02,
+                    Buffer (One) {0x00}
+                }, Local0)
+                DTGP (Arg0, Arg1, Arg2, Arg3, RefOf (Local0))
+                Return (Local0)
+            }
         }
 
         Device (EHC2)
@@ -7833,9 +7851,27 @@ Method (GP2B, 2, Serialized)
             {
                 Return (GPRW (0x0D, 0x04))
             }
+            Method (_DSM, 4, NotSerialized)
+            {
+                Store (Package (0x15) {
+                    "AAPL,slot-name", "Built In",
+                    "name", "Intel EHCI Controller",
+                    "model", Buffer (0x3E) {"Intel 8 Series Chipset Family USB Enhanced Host Controller #2"},
+                    "device_type", Buffer (0x0E) {"USB Controller"},
+                    "AAPL,current-available", 0x0834,
+                    "AAPL,current-extra", 0x0A8C,
+                    "AAPL,current-in-sleep", 0x03E8,
+                    "AAPL,current-extra-in-sleep", 0x0834,
+                    "AAPL,max-port-current-in-sleep", 0x0A8C,
+                    "AAPL,device-internal", 0x02,
+                    Buffer (One) {0x00}
+                }, Local0)
+                DTGP (Arg0, Arg1, Arg2, Arg3, RefOf (Local0))
+                Return (Local0)
+            }
         }
 
-        Device (XHC)
+        Device (XHC1)
         {
             Name (_ADR, 0x00140000)  // _ADR: Address
             Method (DEP, 0, NotSerialized)  // _DEP: Dependencies
@@ -8078,199 +8114,9 @@ Method (GP2B, 2, Serialized)
             }
 
             Name (XRST, Zero)
-            Method (_PS0, 0, Serialized)  // _PS0: Power State 0
-            {
-                If (LEqual (DVID, 0xFFFF))
-                {
-                    Return (Zero)
-                }
+            
 
-                Store (MEMB, Local2)
-                Store (PDBM, Local1)
-                And (PDBM, 0xFFFFFFFFFFFFFFF9, PDBM) /* \_SB_.PCI0.XHC_.PDBM */
-                Store (D0D3, Local3)
-                Store (Zero, D0D3) /* \_SB_.PCI0.XHC_.D0D3 */
-                Store (SRMB, MEMB) /* \_SB_.PCI0.XHC_.MEMB */
-                Or (Local1, 0x02, PDBM) /* \_SB_.PCI0.XHC_.PDBM */
-                OperationRegion (MCA1, SystemMemory, SRMB, 0x9000)
-                Field (MCA1, DWordAcc, Lock, Preserve)
-                {
-                    Offset (0x510), 
-                    PSC1,   32, 
-                    Offset (0x520), 
-                    PSC2,   32, 
-                    Offset (0x530), 
-                    PSC3,   32, 
-                    Offset (0x540), 
-                    PSC4,   32, 
-                    Offset (0x80E0), 
-                        ,   15, 
-                    AX15,   1, 
-                    Offset (0x8154), 
-                        ,   31, 
-                    CLK2,   1, 
-                    Offset (0x816C), 
-                        ,   2, 
-                    CLK0,   1, 
-                        ,   11, 
-                    CLK1,   1
-                }
-
-                If (LEqual (PCHS, 0x02))
-                {
-                    Store (Zero, MB13) /* \_SB_.PCI0.XHC_.MB13 */
-                    Store (Zero, MB14) /* \_SB_.PCI0.XHC_.MB14 */
-                    Store (Zero, CLK0) /* \_SB_.PCI0.XHC_._PS0.CLK0 */
-                    Store (Zero, CLK1) /* \_SB_.PCI0.XHC_._PS0.CLK1 */
-                }
-
-                Store (One, CLK2) /* \_SB_.PCI0.XHC_._PS0.CLK2 */
-                If (LEqual (PCHS, 0x02))
-                {
-                    While (LOr (LOr (LEqual (And (PSC1, 0x03F8), 0x02E0), LEqual (And (PSC2, 
-                        0x03F8), 0x02E0)), LOr (LEqual (And (PSC3, 0x03F8), 0x02E0), LEqual (And (PSC4, 
-                        0x03F8), 0x02E0))))
-                    {
-                        Stall (0x0A)
-                    }
-
-                    Store (Zero, Local4)
-                    And (PSC1, 0xFFFFFFFFFFFFFFFD, Local0)
-                    If (LEqual (And (Local0, 0x000203F9), 0x02A0))
-                    {
-                        Or (Local0, 0x80000000, PSC1) /* \_SB_.PCI0.XHC_._PS0.PSC1 */
-                        Or (Local4, One, Local4)
-                    }
-
-                    And (PSC2, 0xFFFFFFFFFFFFFFFD, Local0)
-                    If (LEqual (And (Local0, 0x000203F9), 0x02A0))
-                    {
-                        Or (Local0, 0x80000000, PSC2) /* \_SB_.PCI0.XHC_._PS0.PSC2 */
-                        Or (Local4, 0x02, Local4)
-                    }
-
-                    And (PSC3, 0xFFFFFFFFFFFFFFFD, Local0)
-                    If (LEqual (And (Local0, 0x000203F9), 0x02A0))
-                    {
-                        Or (Local0, 0x80000000, PSC3) /* \_SB_.PCI0.XHC_._PS0.PSC3 */
-                        Or (Local4, 0x04, Local4)
-                    }
-
-                    And (PSC4, 0xFFFFFFFFFFFFFFFD, Local0)
-                    If (LEqual (And (Local0, 0x000203F9), 0x02A0))
-                    {
-                        Or (Local0, 0x80000000, PSC4) /* \_SB_.PCI0.XHC_._PS0.PSC4 */
-                        Or (Local4, 0x08, Local4)
-                    }
-
-                    If (Local4)
-                    {
-                        Sleep (0x65)
-                        If (And (Local4, One))
-                        {
-                            And (PSC1, 0xFFFFFFFFFFFFFFFD, Local0)
-                            Or (Local0, 0x00FE0000, PSC1) /* \_SB_.PCI0.XHC_._PS0.PSC1 */
-                        }
-
-                        If (And (Local4, 0x02))
-                        {
-                            And (PSC2, 0xFFFFFFFFFFFFFFFD, Local0)
-                            Or (Local0, 0x00FE0000, PSC2) /* \_SB_.PCI0.XHC_._PS0.PSC2 */
-                        }
-
-                        If (And (Local4, 0x04))
-                        {
-                            And (PSC3, 0xFFFFFFFFFFFFFFFD, Local0)
-                            Or (Local0, 0x00FE0000, PSC3) /* \_SB_.PCI0.XHC_._PS0.PSC3 */
-                        }
-
-                        If (And (Local4, 0x08))
-                        {
-                            And (PSC4, 0xFFFFFFFFFFFFFFFD, Local0)
-                            Or (Local0, 0x00FE0000, PSC4) /* \_SB_.PCI0.XHC_._PS0.PSC4 */
-                        }
-                    }
-
-                    Store (One, AX15) /* \_SB_.PCI0.XHC_._PS0.AX15 */
-                }
-
-                If (CondRefOf (\_SB.PCI0.XHC.PS0X))
-                {
-                    PS0X ()
-                }
-
-                And (PDBM, 0xFFFFFFFFFFFFFFFD, PDBM) /* \_SB_.PCI0.XHC_.PDBM */
-                Store (Local2, MEMB) /* \_SB_.PCI0.XHC_.MEMB */
-                Store (Local1, PDBM) /* \_SB_.PCI0.XHC_.PDBM */
-                Return (Zero)
-            }
-
-            Method (_PS3, 0, Serialized)  // _PS3: Power State 3
-            {
-                If (LEqual (DVID, 0xFFFF))
-                {
-                    Return (Zero)
-                }
-
-                Store (One, PMES) /* \_SB_.PCI0.XHC_.PMES */
-                Store (One, PMEE) /* \_SB_.PCI0.XHC_.PMEE */
-                Store (MEMB, Local2)
-                Store (PDBM, Local1)
-                And (PDBM, 0xFFFFFFFFFFFFFFF9, PDBM) /* \_SB_.PCI0.XHC_.PDBM */
-                Store (SRMB, MEMB) /* \_SB_.PCI0.XHC_.MEMB */
-                Or (PDBM, 0x02, PDBM) /* \_SB_.PCI0.XHC_.PDBM */
-                OperationRegion (MCA1, SystemMemory, SRMB, 0x9000)
-                Field (MCA1, DWordAcc, Lock, Preserve)
-                {
-                    Offset (0x80E0), 
-                        ,   15, 
-                    AX15,   1, 
-                    Offset (0x8154), 
-                        ,   31, 
-                    CLK2,   1, 
-                    Offset (0x816C), 
-                        ,   2, 
-                    CLK0,   1, 
-                        ,   11, 
-                    CLK1,   1, 
-                    Offset (0x8170)
-                }
-
-                Store (D0D3, Local3)
-                If (LEqual (Local3, 0x03))
-                {
-                    Store (Zero, D0D3) /* \_SB_.PCI0.XHC_.D0D3 */
-                }
-
-                If (LEqual (PCHS, 0x02))
-                {
-                    Store (One, MB13) /* \_SB_.PCI0.XHC_.MB13 */
-                    Store (One, MB14) /* \_SB_.PCI0.XHC_.MB14 */
-                    Store (One, CLK0) /* \_SB_.PCI0.XHC_._PS3.CLK0 */
-                    Store (One, CLK1) /* \_SB_.PCI0.XHC_._PS3.CLK1 */
-                }
-
-                Store (Zero, CLK2) /* \_SB_.PCI0.XHC_._PS3.CLK2 */
-                If (LEqual (PCHS, 0x02))
-                {
-                    Store (Zero, AX15) /* \_SB_.PCI0.XHC_._PS3.AX15 */
-                }
-
-                If (CondRefOf (\_SB.PCI0.XHC.PS3X))
-                {
-                    PS3X ()
-                }
-
-                If (LEqual (Local3, 0x03))
-                {
-                    Store (0x03, D0D3) /* \_SB_.PCI0.XHC_.D0D3 */
-                }
-
-                And (PDBM, 0xFFFFFFFFFFFFFFFD, PDBM) /* \_SB_.PCI0.XHC_.PDBM */
-                Store (Local2, MEMB) /* \_SB_.PCI0.XHC_.MEMB */
-                Store (Local1, PDBM) /* \_SB_.PCI0.XHC_.PDBM */
-                Return (Zero)
-            }
+            
 
             Method (CUID, 1, Serialized)
             {
@@ -9456,6 +9302,24 @@ Method (GP2B, 2, Serialized)
             {
                 Return (GPRW (0x0D, 0x04))
             }
+            Method (_DSM, 4, NotSerialized)
+            {
+                Store (Package (0x15) {
+                    "AAPL,slot-name", "Built In",
+                    "name", "Intel XHCI Controller",
+                    "model", Buffer (0x37) {"Intel 8 Series Chipset Family USB xHCI Host Controller"},
+                    "device_type", Buffer (0x0E) {"USB Controller"},
+                    "AAPL,current-available", 0x0834,
+                    "AAPL,current-extra", 0x0A8C,
+                    "AAPL,current-in-sleep", 0x03E8,
+                    "AAPL,current-extra-in-sleep", 0x0834,
+                    "AAPL,max-port-current-in-sleep", 0x0A8C,
+                    "AAPL,device-internal", 0x02,
+                    Buffer (One) {0x00}
+                }, Local0)
+                DTGP (Arg0, Arg1, Arg2, Arg3, RefOf (Local0))
+                Return (Local0)
+            }
         }
 
         Device (HDEF)
@@ -9491,19 +9355,19 @@ Method (GP2B, 2, Serialized)
             }
         }
 
-        Device (SAT0)
+        Device (SATA)
         {
             Name (_ADR, 0x001F0002)  // _ADR: Address
             Name (FDEV, Zero)
             Name (FDRP, Zero)
             Method (DEP, 0, NotSerialized)  // _DEP: Dependencies
             {
-                ADBG ("SAT0 DEP Call")
+                ADBG ("SATA DEP Call")
                 If (LGreaterEqual (OSYS, 0x07DD))
                 {
                     If (LAnd (LEqual (S0ID, One), LNotEqual (And (PEPC, 0x03), Zero)))
                     {
-                        ADBG ("SAT0 DEP")
+                        ADBG ("SATA DEP")
                         Return (Package (0x01)
                         {
                             PEPD
@@ -9511,7 +9375,7 @@ Method (GP2B, 2, Serialized)
                     }
                 }
 
-                ADBG ("SAT0 DEP NULL")
+                ADBG ("SATA DEP NULL")
                 Return (Package (Zero) {})
             }
 
@@ -9521,9 +9385,9 @@ Method (GP2B, 2, Serialized)
                 Method (_SDD, 1, Serialized)  // _SDD: Set Device Data
                 {
                     CreateByteField (Arg0, 0x9D, BFDS)
-                    ToInteger (BFDS, FDEV) /* \_SB_.PCI0.SAT0.FDEV */
+                    ToInteger (BFDS, FDEV) /* \_SB_.PCI0.SATA.FDEV */
                     CreateByteField (Arg0, 0x9A, BFRP)
-                    ToInteger (BFRP, FDRP) /* \_SB_.PCI0.SAT0.FDRP */
+                    ToInteger (BFRP, FDRP) /* \_SB_.PCI0.SATA.FDRP */
                 }
 
                 Method (_GTF, 0, Serialized)  // _GTF: Get Task File
@@ -9535,14 +9399,14 @@ Method (GP2B, 2, Serialized)
                         {
                              0x10, 0x09, 0x00, 0x00, 0x00, 0xB0, 0xEF         /* ....... */
                         })
-                        Return (PIB1) /* \_SB_.PCI0.SAT0.PRT0._GTF.PIB1 */
+                        Return (PIB1) /* \_SB_.PCI0.SATA.PRT0._GTF.PIB1 */
                     }
 
                     Name (PIB2, Buffer (0x07)
                     {
                          0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00         /* ....... */
                     })
-                    Return (PIB2) /* \_SB_.PCI0.SAT0.PRT0._GTF.PIB2 */
+                    Return (PIB2) /* \_SB_.PCI0.SATA.PRT0._GTF.PIB2 */
                 }
             }
 
@@ -9554,9 +9418,9 @@ Method (GP2B, 2, Serialized)
                 Method (_SDD, 1, Serialized)  // _SDD: Set Device Data
                 {
                     CreateByteField (Arg0, 0x9D, BFDS)
-                    ToInteger (BFDS, FDEV) /* \_SB_.PCI0.SAT0.PRT1.FDEV */
+                    ToInteger (BFDS, FDEV) /* \_SB_.PCI0.SATA.PRT1.FDEV */
                     CreateByteField (Arg0, 0x9A, BFRP)
-                    ToInteger (BFRP, FDRP) /* \_SB_.PCI0.SAT0.PRT1.FDRP */
+                    ToInteger (BFRP, FDRP) /* \_SB_.PCI0.SATA.PRT1.FDRP */
                 }
 
                 Method (_GTF, 0, Serialized)  // _GTF: Get Task File
@@ -9568,14 +9432,14 @@ Method (GP2B, 2, Serialized)
                         {
                              0x10, 0x09, 0x00, 0x00, 0x00, 0xB0, 0xEF         /* ....... */
                         })
-                        Return (PIB1) /* \_SB_.PCI0.SAT0.PRT1._GTF.PIB1 */
+                        Return (PIB1) /* \_SB_.PCI0.SATA.PRT1._GTF.PIB1 */
                     }
 
                     Name (PIB2, Buffer (0x07)
                     {
                          0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00         /* ....... */
                     })
-                    Return (PIB2) /* \_SB_.PCI0.SAT0.PRT1._GTF.PIB2 */
+                    Return (PIB2) /* \_SB_.PCI0.SATA.PRT1._GTF.PIB2 */
                 }
             }
 
@@ -9587,9 +9451,9 @@ Method (GP2B, 2, Serialized)
                 Method (_SDD, 1, Serialized)  // _SDD: Set Device Data
                 {
                     CreateByteField (Arg0, 0x9D, BFDS)
-                    ToInteger (BFDS, FDEV) /* \_SB_.PCI0.SAT0.PRT2.FDEV */
+                    ToInteger (BFDS, FDEV) /* \_SB_.PCI0.SATA.PRT2.FDEV */
                     CreateByteField (Arg0, 0x9A, BFRP)
-                    ToInteger (BFRP, FDRP) /* \_SB_.PCI0.SAT0.PRT2.FDRP */
+                    ToInteger (BFRP, FDRP) /* \_SB_.PCI0.SATA.PRT2.FDRP */
                 }
 
                 Method (_GTF, 0, Serialized)  // _GTF: Get Task File
@@ -9601,14 +9465,14 @@ Method (GP2B, 2, Serialized)
                         {
                              0x10, 0x09, 0x00, 0x00, 0x00, 0xB0, 0xEF         /* ....... */
                         })
-                        Return (PIB1) /* \_SB_.PCI0.SAT0.PRT2._GTF.PIB1 */
+                        Return (PIB1) /* \_SB_.PCI0.SATA.PRT2._GTF.PIB1 */
                     }
 
                     Name (PIB2, Buffer (0x07)
                     {
                          0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00         /* ....... */
                     })
-                    Return (PIB2) /* \_SB_.PCI0.SAT0.PRT2._GTF.PIB2 */
+                    Return (PIB2) /* \_SB_.PCI0.SATA.PRT2._GTF.PIB2 */
                 }
             }
 
@@ -9620,9 +9484,9 @@ Method (GP2B, 2, Serialized)
                 Method (_SDD, 1, Serialized)  // _SDD: Set Device Data
                 {
                     CreateByteField (Arg0, 0x9D, BFDS)
-                    ToInteger (BFDS, FDEV) /* \_SB_.PCI0.SAT0.PRT3.FDEV */
+                    ToInteger (BFDS, FDEV) /* \_SB_.PCI0.SATA.PRT3.FDEV */
                     CreateByteField (Arg0, 0x9A, BFRP)
-                    ToInteger (BFRP, FDRP) /* \_SB_.PCI0.SAT0.PRT3.FDRP */
+                    ToInteger (BFRP, FDRP) /* \_SB_.PCI0.SATA.PRT3.FDRP */
                 }
 
                 Method (_GTF, 0, Serialized)  // _GTF: Get Task File
@@ -9634,22 +9498,30 @@ Method (GP2B, 2, Serialized)
                         {
                              0x10, 0x09, 0x00, 0x00, 0x00, 0xB0, 0xEF         /* ....... */
                         })
-                        Return (PIB1) /* \_SB_.PCI0.SAT0.PRT3._GTF.PIB1 */
+                        Return (PIB1) /* \_SB_.PCI0.SATA.PRT3._GTF.PIB1 */
                     }
 
                     Name (PIB2, Buffer (0x07)
                     {
                          0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00         /* ....... */
                     })
-                    Return (PIB2) /* \_SB_.PCI0.SAT0.PRT3._GTF.PIB2 */
+                    Return (PIB2) /* \_SB_.PCI0.SATA.PRT3._GTF.PIB2 */
                 }
+            }
+            Method (_DSM, 4, NotSerialized)
+            {
+                Store (Package (0x08) {
+                    "AAPL,slot-name", "Built In",
+                    "name", "Intel AHCI Controller",
+                    "model", Buffer (0x2D) {"Intel 8 Series Chipset Family SATA Controller"},
+                    "device_type", Buffer (0x0F) {"AHCI Controller"},
+                }, Local0)
+                DTGP (Arg0, Arg1, Arg2, Arg3, RefOf (Local0))
+                Return (Local0)
             }
         }
 
-        Device (SAT1)
-        {
-            Name (_ADR, 0x001F0005)  // _ADR: Address
-        }
+        
 
         Device (SBUS)
         {
@@ -10686,11 +10558,13 @@ Method (GP2B, 2, Serialized)
     Method (ADBG, 1, Serialized)
     {
         
+        
         If (CondRefOf (MDBG))
         {
             Return (MDBG)
         }
         Return (Zero)
+
 
     }
 
@@ -11062,7 +10936,7 @@ Method (GP2B, 2, Serialized)
 
         If (LOr (LEqual (Arg0, 0x03), LEqual (Arg0, 0x04)))
         {
-            \_SB.PCI0.XHC.XWAK ()
+            \_SB.PCI0.XHC1.XWAK ()
         }
 
         Return (Package (0x02)
@@ -11605,7 +11479,7 @@ Method (GP2B, 2, Serialized)
 
                 Package (0x01)
                 {
-                    "\\_SB.PCI0.SAT0.PRT1"
+                    "\\_SB.PCI0.SATA.PRT1"
                 }
             })
             Name (DEVX, Package (0x08)
@@ -11618,7 +11492,7 @@ Method (GP2B, 2, Serialized)
 
                 Package (0x02)
                 {
-                    "\\_SB.PCI0.SAT0.PRT1", 
+                    "\\_SB.PCI0.SATA.PRT1", 
                     0xFFFFFFFF
                 }, 
 
@@ -11648,7 +11522,7 @@ Method (GP2B, 2, Serialized)
 
                 Package (0x02)
                 {
-                    "\\_SB.PCI0.XHC", 
+                    "\\_SB.PCI0.XHC1", 
                     0xFFFFFFFF
                 }, 
 
@@ -11737,7 +11611,7 @@ Method (GP2B, 2, Serialized)
 
                 Package (0x03)
                 {
-                    "\\_SB.PCI0.SAT0", 
+                    "\\_SB.PCI0.SATA", 
                     One, 
                     Package (0x02)
                     {
@@ -11752,7 +11626,7 @@ Method (GP2B, 2, Serialized)
 
                 Package (0x03)
                 {
-                    "\\_SB.PCI0.SAT0.PRT0", 
+                    "\\_SB.PCI0.SATA.PRT0", 
                     One, 
                     Package (0x02)
                     {
@@ -11768,7 +11642,7 @@ Method (GP2B, 2, Serialized)
 
                 Package (0x03)
                 {
-                    "\\_SB.PCI0.SAT0.PRT1", 
+                    "\\_SB.PCI0.SATA.PRT1", 
                     One, 
                     Package (0x02)
                     {
@@ -11784,7 +11658,7 @@ Method (GP2B, 2, Serialized)
 
                 Package (0x03)
                 {
-                    "\\_SB.PCI0.SAT0.PRT2", 
+                    "\\_SB.PCI0.SATA.PRT2", 
                     One, 
                     Package (0x02)
                     {
@@ -11800,7 +11674,7 @@ Method (GP2B, 2, Serialized)
 
                 Package (0x03)
                 {
-                    "\\_SB.PCI0.SAT0.PRT3", 
+                    "\\_SB.PCI0.SATA.PRT3", 
                     One, 
                     Package (0x02)
                     {
@@ -11891,7 +11765,7 @@ Method (GP2B, 2, Serialized)
 
                 Package (0x03)
                 {
-                    "\\_SB.PCI0.XHC", 
+                    "\\_SB.PCI0.XHC1", 
                     One, 
                     Package (0x02)
                     {
@@ -11950,7 +11824,7 @@ Method (GP2B, 2, Serialized)
             {
                 Package (0x02)
                 {
-                    "\\_SB.PCI0.SAT0", 
+                    "\\_SB.PCI0.SATA", 
                     Package (0x01)
                     {
                         Package (0x03)
@@ -11978,7 +11852,7 @@ Method (GP2B, 2, Serialized)
 
                 Package (0x02)
                 {
-                    "\\_SB.PCI0.SAT0.PRT0", 
+                    "\\_SB.PCI0.SATA.PRT0", 
                     Package (0x01)
                     {
                         Package (0x03)
@@ -12006,7 +11880,7 @@ Method (GP2B, 2, Serialized)
 
                 Package (0x02)
                 {
-                    "\\_SB.PCI0.SAT0.PRT1", 
+                    "\\_SB.PCI0.SATA.PRT1", 
                     Package (0x01)
                     {
                         Package (0x03)
@@ -12034,7 +11908,7 @@ Method (GP2B, 2, Serialized)
 
                 Package (0x02)
                 {
-                    "\\_SB.PCI0.SAT0.PRT2", 
+                    "\\_SB.PCI0.SATA.PRT2", 
                     Package (0x01)
                     {
                         Package (0x03)
@@ -12062,7 +11936,7 @@ Method (GP2B, 2, Serialized)
 
                 Package (0x02)
                 {
-                    "\\_SB.PCI0.SAT0.PRT3", 
+                    "\\_SB.PCI0.SATA.PRT3", 
                     Package (0x01)
                     {
                         Package (0x03)
@@ -12150,7 +12024,7 @@ Method (GP2B, 2, Serialized)
                                             One, 
                                             Package (0x01)
                                             {
-                                                "\\_SB.PCI0.SAT0.PRT1"
+                                                "\\_SB.PCI0.SATA.PRT1"
                                             }
                                         })
                                     }
@@ -12532,15 +12406,15 @@ Method (GP2B, 2, Serialized)
                 Notify (\_SB.PCI0.EHC2, 0x02) // Device Wake
             }
 
-            If (LAnd (\_SB.PCI0.XHC.PMEE, \_SB.PCI0.XHC.PMES))
+            If (LAnd (\_SB.PCI0.XHC1.PMEE, \_SB.PCI0.XHC1.PMES))
             {
-                Notify (\_SB.PCI0.XHC, 0x02) // Device Wake
+                Notify (\_SB.PCI0.XHC1, 0x02) // Device Wake
             }
             Else
             {
-                If (LEqual (\_SB.PCI0.XHC.PMEE, Zero))
+                If (LEqual (\_SB.PCI0.XHC1.PMEE, Zero))
                 {
-                    Store (One, \_SB.PCI0.XHC.PMES)
+                    Store (One, \_SB.PCI0.XHC1.PMES)
                 }
             }
 
@@ -13362,13 +13236,13 @@ Method (GP2B, 2, Serialized)
         {
             If (TCMF)
 {
-    Return (Zero)
-}
+    }
 
             Else
             {
                 Return (0x0201D824)
             }
+            Return (Zero)
         }
 
         Name (_CID, EisaId ("PNP0C31"))  // _CID: Compatible ID
@@ -13752,7 +13626,7 @@ Method (GP2B, 2, Serialized)
                 }
 
                 Name (RPKG, Package (0x02) {})
-                Name (XMPT, Buffer (0x0000) {})
+                Name (XMPT, Buffer (Zero) {})
                 If (LEqual (Arg0, One))
                 {
                     Store (XMP1, XMPT) /* \_SB_.PTMD.GXDV.XMPT */
@@ -13982,6 +13856,27 @@ Method (GP2B, 2, Serialized)
 
     Method (PINI, 0, NotSerialized)
     {
+    }
+    Method (DTGP, 5, NotSerialized)
+    {
+        If (LEqual (Arg0, Buffer (0x10)
+        {
+            /* 0000 */	0xC6, 0xB7, 0xB5, 0xA0, 0x18, 0x13, 0x1C, 0x44,
+            /* 0008 */	0xB0, 0xC9, 0xFE, 0x69, 0x5E, 0xAF, 0x94, 0x9B
+        }))
+        {
+            If (LEqual (Arg1, One)) {
+                If (LEqual (Arg2, Zero)) {
+                    Store (Buffer (One) { 0x03 }, Arg4)
+                    Return (One)
+                }
+                If (LEqual (Arg2, One)) {
+                    Return (One)
+                }
+            }
+        }
+        Store (Buffer (One) { 0x00 }, Arg4)
+        Return (Zero)
     }
     Store ("has0-8series-Clean_Compile_v1.3 dsdt edits, github.com/toleda", Debug)
     Store ("has2-dsdt-ami-8_series-PEG0_add_dsdt-p0p2_v1.1 dsdt edits, github.com/toleda", Debug)
