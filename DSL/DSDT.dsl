@@ -40,9 +40,9 @@ DefinitionBlock ("DSDT.aml", "DSDT", 2, "ALASKA", "A M I", 0x00000088)
      * required for each:
      */
     External (_SB_.PCI0.PAUD.PUAM, MethodObj)    // Warning: Unresolved method, guessing 0 arguments
-    External (_SB_.PCI0.PEG0, UnknownObj)
-    External (_SB_.PCI0.PEG0.PEGP, UnknownObj)
-    External (_SB_.PCI0.PEG0.PEGP.EPON, MethodObj)    // Warning: Unresolved method, guessing 0 arguments
+    External (_SB_.PCI0.P0P2, UnknownObj)
+    External (_SB_.PCI0.P0P2.PEGP, UnknownObj)
+    External (_SB_.PCI0.P0P2.PEGP.EPON, MethodObj)    // Warning: Unresolved method, guessing 0 arguments
     External (_SB_.PCI0.RP05.PEGP.EPON, MethodObj)    // Warning: Unresolved method, guessing 0 arguments
     External (_SB_.PCI0.XHC_.DUAM, MethodObj)    // Warning: Unresolved method, guessing 0 arguments
     External (_SB_.TPM_.PTS_, MethodObj)    // Warning: Unresolved method, guessing 1 arguments
@@ -75,7 +75,7 @@ DefinitionBlock ("DSDT.aml", "DSDT", 2, "ALASKA", "A M I", 0x00000088)
     External (_SB_.PCI0.GFX0.IUEH, MethodObj)    // 1 Arguments
     External (_SB_.PCI0.GFX0.STAT, FieldUnitObj)
     External (_SB_.PCI0.GFX0.TCHE, FieldUnitObj)
-    External (_SB_.PCI0.PEG0.HPME, MethodObj)    // 0 Arguments
+    External (_SB_.PCI0.P0P2.HPME, MethodObj)    // 0 Arguments
     External (_SB_.PCI0.PEG1, UnknownObj)
     External (_SB_.PCI0.PEG1.HPME, MethodObj)    // 0 Arguments
     External (_SB_.PCI0.PEG2, UnknownObj)
@@ -6389,6 +6389,22 @@ DefinitionBlock ("DSDT.aml", "DSDT", 2, "ALASKA", "A M I", 0x00000088)
             {
                 Name (_ADR, 0x00040000)  // _ADR: Address
             }
+            Device (P0P2)
+            {
+                Name (_ADR, 0x00010000)
+                Method (_PRW, 0, NotSerialized)
+                {
+                    Return (GPRW (0x09, 0x04))
+                }
+                Method (_PRT, 0, NotSerialized)
+                {
+                    If (PICM)
+                    {
+                        Return (AR02 ())
+                    }
+                    Return (PR02 ())
+                }
+            }
         }
 
         Scope (\_GPE)
@@ -10721,9 +10737,9 @@ Method (GP2B, 2, Serialized)
         ADBG ("_WAK")
         If (LOr (LEqual (Arg0, 0x03), LEqual (Arg0, 0x04)))
         {
-            If (CondRefOf (\_SB.PCI0.PEG0.PEGP.EPON))
+            If (CondRefOf (\_SB.PCI0.P0P2.PEGP.EPON))
             {
-                \_SB.PCI0.PEG0.PEGP.EPON ()
+                \_SB.PCI0.P0P2.PEGP.EPON ()
             }
 
             If (CondRefOf (\_SB.PCI0.RP05.PEGP.EPON))
@@ -12421,9 +12437,9 @@ Method (GP2B, 2, Serialized)
 
             If (LEqual (\_SB.PCI0.D1F0, One))
             {
-                \_SB.PCI0.PEG0.HPME ()
-                Notify (\_SB.PCI0.PEG0, 0x02) // Device Wake
-                Notify (\_SB.PCI0.PEG0.PEGP, 0x02) // Device Wake
+                \_SB.PCI0.P0P2.HPME ()
+                Notify (\_SB.PCI0.P0P2, 0x02) // Device Wake
+                Notify (\_SB.PCI0.P0P2.PEGP, 0x02) // Device Wake
             }
 
             If (LEqual (\_SB.PCI0.D1F1, One))
@@ -13903,5 +13919,6 @@ Method (GP2B, 2, Serialized)
     {
     }
     Store ("has0-8series-Clean_Compile_v1.3 dsdt edits, github.com/toleda", Debug)
+    Store ("has2-dsdt-ami-8_series-PEG0_add_dsdt-p0p2_v1.1 dsdt edits, github.com/toleda", Debug)
 }
 
