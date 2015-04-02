@@ -184,7 +184,7 @@ DefinitionBlock ("SSDT-6.aml", "SSDT", 1, "SaSsdt", "SaSsdt ", 0x00003000)
     {
         Name (LTRS, Zero)
         Name (OBFS, Zero)
-        Device (PEG0)
+        Device (P0P2)
         {
             Name (_ADR, 0x00010000)  // _ADR: Address
             OperationRegion (PEGR, PCI_Config, 0xC0, 0x30)
@@ -207,19 +207,19 @@ DefinitionBlock ("SSDT-6.aml", "SSDT", 1, "SaSsdt", "SaSsdt ", 0x00003000)
             {
                 If (Arg0)
                 {
-                    Store (One, GENG) /* \_SB_.PCI0.PEG0.GENG */
-                    Store (One, PMEG) /* \_SB_.PCI0.PEG0.PMEG */
+                    Store (One, GENG) /* \_SB_.PCI0.P0P2.GENG */
+                    Store (One, PMEG) /* \_SB_.PCI0.P0P2.PMEG */
                 }
                 Else
                 {
-                    Store (Zero, GENG) /* \_SB_.PCI0.PEG0.GENG */
-                    Store (Zero, PMEG) /* \_SB_.PCI0.PEG0.PMEG */
+                    Store (Zero, GENG) /* \_SB_.PCI0.P0P2.GENG */
+                    Store (Zero, PMEG) /* \_SB_.PCI0.P0P2.PMEG */
                 }
             }
 
             Method (HPME, 0, Serialized)
             {
-                Store (One, PSTS) /* \_SB_.PCI0.PEG0.PSTS */
+                Store (One, PSTS) /* \_SB_.PCI0.P0P2.PSTS */
             }
 
             Method (_PRT, 0, NotSerialized)  // _PRT: PCI Routing Table
@@ -246,99 +246,7 @@ DefinitionBlock ("SSDT-6.aml", "SSDT", 1, "SaSsdt", "SaSsdt ", 0x00003000)
                 Zero
             })
             Name (OPTS, Zero)
-            Method (_DSM, 4, Serialized)  // _DSM: Device-Specific Method
-            {
-                Name (T_1, Zero)  // T_x: Emitted by ASL Compiler
-                Name (T_0, Zero)  // T_x: Emitted by ASL Compiler
-                While (One)
-                {
-                    Store (ToInteger (Arg0), T_0) /* \_SB_.PCI0.PEG0._DSM.T_0 */
-                    If (LEqual (T_0, ToUUID ("e5c937d0-3553-4d7a-9117-ea4d19c3434d") /* Device Labeling Interface */))
-                    {
-                        While (One)
-                        {
-                            Store (ToInteger (Arg2), T_1) /* \_SB_.PCI0.PEG0._DSM.T_1 */
-                            If (LEqual (T_1, Zero))
-                            {
-                                If (LEqual (Arg1, 0x02))
-                                {
-                                    Store (One, OPTS) /* \_SB_.PCI0.PEG0.OPTS */
-                                    If (LTRS)
-                                    {
-                                        Or (OPTS, 0x40, OPTS) /* \_SB_.PCI0.PEG0.OPTS */
-                                    }
-
-                                    If (OBFS)
-                                    {
-                                        Or (OPTS, 0x10, OPTS) /* \_SB_.PCI0.PEG0.OPTS */
-                                    }
-
-                                    Return (OPTS) /* \_SB_.PCI0.PEG0.OPTS */
-                                }
-                                Else
-                                {
-                                    Return (Zero)
-                                }
-                            }
-                            Else
-                            {
-                                If (LEqual (T_1, 0x04))
-                                {
-                                    If (LEqual (Arg1, 0x02))
-                                    {
-                                        If (OBFS)
-                                        {
-                                            Return (Buffer (0x10)
-                                            {
-                                                /* 0000 */  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,  /* ........ */
-                                                /* 0008 */  0x00, 0x00, 0x00, 0x08, 0x00, 0x00, 0x00, 0x00   /* ........ */
-                                            })
-                                        }
-                                        Else
-                                        {
-                                            Return (Buffer (0x10)
-                                            {
-                                                /* 0000 */  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,  /* ........ */
-                                                /* 0008 */  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00   /* ........ */
-                                            })
-                                        }
-                                    }
-                                }
-                                Else
-                                {
-                                    If (LEqual (T_1, 0x06))
-                                    {
-                                        If (LEqual (Arg1, 0x02))
-                                        {
-                                            If (LTRS)
-                                            {
-                                                Store (And (ShiftRight (SMSL, 0x0A), 0x07), Index (LTRV, Zero))
-                                                Store (And (SMSL, 0x03FF), Index (LTRV, One))
-                                                Store (And (ShiftRight (SNSL, 0x0A), 0x07), Index (LTRV, 0x02))
-                                                Store (And (SNSL, 0x03FF), Index (LTRV, 0x03))
-                                                Return (LTRV) /* \_SB_.PCI0.PEG0.LTRV */
-                                            }
-                                            Else
-                                            {
-                                                Return (Zero)
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-
-                            Break
-                        }
-                    }
-
-                    Break
-                }
-
-                Return (Buffer (One)
-                {
-                     0x00                                             /* . */
-                })
-            }
+            
 
             Device (PEGP)
             {
@@ -3299,5 +3207,6 @@ DefinitionBlock ("SSDT-6.aml", "SSDT", 1, "SaSsdt", "SaSsdt ", 0x00003000)
         }
     }
     Store ("has0-8series-Clean_Compile_v1.3 dsdt edits, github.com/toleda", Debug)
+    Store ("has2-dsdt-ami-8_series-PEG0_add_dsdt-p0p2_v1.1 dsdt edits, github.com/toleda", Debug)
 }
 
