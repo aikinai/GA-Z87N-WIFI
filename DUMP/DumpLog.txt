@@ -1,0 +1,107 @@
+57:410  44:007  Found BIOS RSDP at F0000
+57:410  0:000  Printing ACPI tables from RSDP F0000 ...
+57:410  0:000   F0000: 'RSD PTR ', Rev: 2 (Acpi 2.0 or newer), Len: 36
+57:410  0:000    (Xsdt: DD757078, Rsdt: DD757028)
+57:410  0:000    DD757078: 'XSDT', 'A M I', Rev: 1, Len: 116
+57:410  0:000    DD757028: 'RSDT', 'A M I', Rev: 1, Len: 76
+57:410  0:000    Tables in Xsdt: 10
+57:410  0:000    0. DD763B98: 'FACP', 'A M I', Rev: 5, Len: 268
+57:410  0:000        (Dsdt: DD757188, Facs: DD785080, XDsdt: DD757188, XFacs: 0)
+57:410  0:000        DD757188: 'DSDT', 'A M I', Rev: 2, Len: 51726
+57:410  0:000        DD785080: 'FACS', Ver: 2, Len: 64
+57:410  0:000    1. DD763CA8: 'APIC', 'A M I', Rev: 3, Len: 114
+57:410  0:000    2. DD763D20: 'FPDT', 'A M I', Rev: 1, Len: 68
+57:410  0:000    3. DD763D68: 'SSDT', 'Cpu0Ist', Rev: 1, Len: 1337
+57:410  0:000    4. DD7642A8: 'SSDT', 'CpuPm', Rev: 1, Len: 2776
+57:410  0:000    5. DD764D80: 'MCFG', 'A M I', Rev: 1, Len: 60
+57:410  0:000    6. DD764DC0: 'HPET', 'A M I', Rev: 1, Len: 56
+57:410  0:000    7. DD764DF8: 'SSDT', 'SataTabl', Rev: 1, Len: 877
+57:410  0:000    8. DD765168: 'SSDT', 'SaSsdt ', Rev: 1, Len: 13537
+57:410  0:000    9. DD768650: 'BGRT', 'A M I', Rev: 0, Len: 56
+57:410  0:000    Tables in Rsdt: 10
+57:410  0:000    0. DD757100: 'FACP', 'A M I', Rev: 2, Len: 132
+57:410  0:000        (Dsdt: DD757188, Facs: DD785040)
+57:410  0:000        DD757188: 'DSDT', 'A M I', Rev: 2, Len: 51726
+57:411  0:000        DD785040: 'FACS', Ver: 0, Len: 64
+57:411  0:000    1. DD763CA8: 'APIC', 'A M I', Rev: 3, Len: 114
+57:411  0:000    2. DD763D20: 'FPDT', 'A M I', Rev: 1, Len: 68
+57:411  0:000    3. DD763D68: 'SSDT', 'Cpu0Ist', Rev: 1, Len: 1337
+57:411  0:000    4. DD7642A8: 'SSDT', 'CpuPm', Rev: 1, Len: 2776
+57:411  0:000    5. DD764D80: 'MCFG', 'A M I', Rev: 1, Len: 60
+57:411  0:000    6. DD764DC0: 'HPET', 'A M I', Rev: 1, Len: 56
+57:411  0:000    7. DD764DF8: 'SSDT', 'SataTabl', Rev: 1, Len: 877
+57:411  0:000    8. DD765168: 'SSDT', 'SaSsdt ', Rev: 1, Len: 13537
+57:411  0:000    9. DD768650: 'BGRT', 'A M I', Rev: 0, Len: 56
+57:411  0:000  Found UEFI Acpi 2.0 RSDP at DD757000
+57:411  0:000  Saving ACPI tables from RSDP DD757000 to EFI\CLOVER\ACPI\origin ...
+57:411  0:000   DD757000: 'RSD PTR ', Rev: 2 (Acpi 2.0 or newer), Len: 36 -> RSDP.aml
+57:723  0:311    (Xsdt: DD757078, Rsdt: DD757028)
+57:723  0:000    DD757078: 'XSDT', 'A M I', Rev: 1, Len: 116 -> XSDT.aml
+57:725  0:002    DD757028: 'RSDT', 'A M I', Rev: 1, Len: 76 -> RSDT.aml
+57:728  0:002    Tables in Xsdt: 10
+57:728  0:000    0. DD763B98: 'FACP', 'A M I', Rev: 5, Len: 268 -> FACP.aml
+57:733  0:004        (Dsdt: DD757188, Facs: DD785080, XDsdt: DD757188, XFacs: 0)
+57:733  0:000        DD757188: 'DSDT', 'A M I', Rev: 2, Len: 51726 -> DSDT.aml
+57:736  0:003        DD785080: 'FACS', Ver: 2, Len: 64 -> FACS.aml
+57:738  0:002    1. DD763CA8: 'APIC', 'A M I', Rev: 3, Len: 114 -> APIC.aml
+57:741  0:002    2. DD763D20: 'FPDT', 'A M I', Rev: 1, Len: 68 -> FPDT.aml
+57:748  0:006    3. DD763D68: 'SSDT', 'Cpu0Ist', Rev: 1, Len: 1337 -> SSDT-0.aml
+57:750  0:002    4. DD7642A8: 'SSDT', 'CpuPm', Rev: 1, Len: 2776
+ Found hidden SSDT 4 pcs
+57:750  0:000        * DB4E0A98: '$', '', Rev: 0, Len: 23117  24 05 00 10 4D 5A 00 00 00 00 00 00 00 00 00 00       * DD67C618: 'SSDT', 'ApIst', Rev: 1, Len: 1450  53 53 44 54 AA 05 00 00 01 D3 50 6D 52 65 66 00 Internal length = 1450 -> SSDT-2x.aml
+57:753  0:002        * DD67CC18: 'SSDT', 'Cpu0Cst', Rev: 1, Len: 979  53 53 44 54 D3 03 00 00 01 B3 50 6D 52 65 66 00 Internal length = 979 -> SSDT-3x.aml
+57:756  0:002        * DD67BD98: 'SSDT', 'ApCst', Rev: 1, Len: 281  53 53 44 54 19 01 00 00 01 EF 50 6D 52 65 66 00 Internal length = 281 -> SSDT-4x.aml
+57:758  0:002   -> SSDT-1.aml
+57:761  0:002    5. DD764D80: 'MCFG', 'A M I', Rev: 1, Len: 60 -> MCFG.aml
+57:764  0:002    6. DD764DC0: 'HPET', 'A M I', Rev: 1, Len: 56 -> HPET.aml
+57:766  0:002    7. DD764DF8: 'SSDT', 'SataTabl', Rev: 1, Len: 877 -> SSDT-5.aml
+57:771  0:004    8. DD765168: 'SSDT', 'SaSsdt ', Rev: 1, Len: 13537 -> SSDT-6.aml
+57:773  0:002    9. DD768650: 'BGRT', 'A M I', Rev: 0, Len: 56 -> BGRT.aml
+57:776  0:002    Tables in Rsdt: 10
+57:776  0:000    0. DD757100: 'FACP', 'A M I', Rev: 2, Len: 132 -> RSDT-FACP.aml
+57:779  0:002        (Dsdt: DD757188, Facs: DD785040)
+57:779  0:000        DD757188: 'DSDT', 'A M I', Rev: 2, Len: 51726
+57:779  0:000        DD785040: 'FACS', Ver: 0, Len: 64 -> RSDT-FACS.aml
+57:782  0:002    1. DD763CA8: 'APIC', 'A M I', Rev: 3, Len: 114
+57:782  0:000    2. DD763D20: 'FPDT', 'A M I', Rev: 1, Len: 68
+57:782  0:000    3. DD763D68: 'SSDT', 'Cpu0Ist', Rev: 1, Len: 1337
+57:782  0:000    4. DD7642A8: 'SSDT', 'CpuPm', Rev: 1, Len: 2776
+57:782  0:000    5. DD764D80: 'MCFG', 'A M I', Rev: 1, Len: 60
+57:782  0:000    6. DD764DC0: 'HPET', 'A M I', Rev: 1, Len: 56
+57:782  0:000    7. DD764DF8: 'SSDT', 'SataTabl', Rev: 1, Len: 877
+57:782  0:000    8. DD765168: 'SSDT', 'SaSsdt ', Rev: 1, Len: 13537
+57:782  0:000    9. DD768650: 'BGRT', 'A M I', Rev: 0, Len: 56
+57:782  0:000  Found UEFI Acpi 1.0 RSDP at DD757000
+57:782  0:000  Printing ACPI tables from RSDP DD757000 ...
+57:782  0:000   DD757000: 'RSD PTR ', Rev: 2 (Acpi 2.0 or newer), Len: 36
+57:782  0:000    (Xsdt: DD757078, Rsdt: DD757028)
+57:782  0:000    DD757078: 'XSDT', 'A M I', Rev: 1, Len: 116
+57:782  0:000    DD757028: 'RSDT', 'A M I', Rev: 1, Len: 76
+57:782  0:000    Tables in Xsdt: 10
+57:782  0:000    0. DD763B98: 'FACP', 'A M I', Rev: 5, Len: 268
+57:782  0:000        (Dsdt: DD757188, Facs: DD785080, XDsdt: DD757188, XFacs: 0)
+57:782  0:000        DD757188: 'DSDT', 'A M I', Rev: 2, Len: 51726
+57:782  0:000        DD785080: 'FACS', Ver: 2, Len: 64
+57:782  0:000    1. DD763CA8: 'APIC', 'A M I', Rev: 3, Len: 114
+57:782  0:000    2. DD763D20: 'FPDT', 'A M I', Rev: 1, Len: 68
+57:782  0:000    3. DD763D68: 'SSDT', 'Cpu0Ist', Rev: 1, Len: 1337
+57:782  0:000    4. DD7642A8: 'SSDT', 'CpuPm', Rev: 1, Len: 2776
+57:782  0:000    5. DD764D80: 'MCFG', 'A M I', Rev: 1, Len: 60
+57:782  0:000    6. DD764DC0: 'HPET', 'A M I', Rev: 1, Len: 56
+57:782  0:000    7. DD764DF8: 'SSDT', 'SataTabl', Rev: 1, Len: 877
+57:782  0:000    8. DD765168: 'SSDT', 'SaSsdt ', Rev: 1, Len: 13537
+57:782  0:000    9. DD768650: 'BGRT', 'A M I', Rev: 0, Len: 56
+57:782  0:000    Tables in Rsdt: 10
+57:782  0:000    0. DD757100: 'FACP', 'A M I', Rev: 2, Len: 132
+57:782  0:000        (Dsdt: DD757188, Facs: DD785040)
+57:782  0:000        DD757188: 'DSDT', 'A M I', Rev: 2, Len: 51726
+57:783  0:000        DD785040: 'FACS', Ver: 0, Len: 64
+57:783  0:000    1. DD763CA8: 'APIC', 'A M I', Rev: 3, Len: 114
+57:783  0:000    2. DD763D20: 'FPDT', 'A M I', Rev: 1, Len: 68
+57:783  0:000    3. DD763D68: 'SSDT', 'Cpu0Ist', Rev: 1, Len: 1337
+57:783  0:000    4. DD7642A8: 'SSDT', 'CpuPm', Rev: 1, Len: 2776
+57:783  0:000    5. DD764D80: 'MCFG', 'A M I', Rev: 1, Len: 60
+57:783  0:000    6. DD764DC0: 'HPET', 'A M I', Rev: 1, Len: 56
+57:783  0:000    7. DD764DF8: 'SSDT', 'SataTabl', Rev: 1, Len: 877
+57:783  0:000    8. DD765168: 'SSDT', 'SaSsdt ', Rev: 1, Len: 13537
+57:783  0:000    9. DD768650: 'BGRT', 'A M I', Rev: 0, Len: 56
